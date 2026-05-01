@@ -4,20 +4,20 @@ import { onMounted, ref } from "vue";
 /**
  * TitleBar Component (Electron Version)
  * Responsibility (SRP): Providing custom window controls and drag region for the frameless window.
- * Logic: Uses the 'phoenix' bridge exposed in preload.js to control the Electron window.
+ * Logic: Uses the 'kognisant' bridge exposed in preload.js to control the Electron window.
  */
 
 const isMaximized = ref(false);
 
 const minimize = () => {
-    if (window.phoenix?.window) {
-        window.phoenix.window.minimize();
+    if (window.kognisant?.window) {
+        window.kognisant.window.minimize();
     }
 };
 
 const toggleMaximize = () => {
-    if (window.phoenix?.window) {
-        window.phoenix.window.maximize();
+    if (window.kognisant?.window) {
+        window.kognisant.window.maximize();
         // Since Electron's maximize event is handled in the main process,
         // we can toggle local state or listen for a main-to-renderer event if needed.
         isMaximized.value = !isMaximized.value;
@@ -25,8 +25,8 @@ const toggleMaximize = () => {
 };
 
 const close = () => {
-    if (window.phoenix?.window) {
-        window.phoenix.window.close();
+    if (window.kognisant?.window) {
+        window.kognisant.window.close();
     }
 };
 
@@ -37,16 +37,16 @@ onMounted(() => {
 
 <template>
     <div
-        class="h-8 bg-phoenix-card flex justify-between items-center select-none fixed top-0 left-0 right-0 z-[1000] border-b border-white/5 drag-region"
+        class="h-8 bg-kognisant-card flex justify-between items-center select-none fixed top-0 left-0 right-0 z-[1000] border-b border-white/5 drag-region"
     >
         <!-- App Branding (Non-interactive drag area) -->
         <div class="flex items-center px-3 gap-2 pointer-events-none">
             <div
-                class="w-3 h-3 rounded-full bg-phoenix-accent/20 border border-phoenix-accent/40"
+                class="w-3 h-3 rounded-full bg-kognisant-accent/20 border border-kognisant-accent/40"
             ></div>
             <span
-                class="text-[10px] font-bold tracking-widest text-phoenix-muted uppercase"
-                >Phoenix Kernel</span
+                class="text-[10px] font-bold tracking-widest text-kognisant-muted uppercase"
+                >Kognisant Kernel</span
             >
         </div>
 

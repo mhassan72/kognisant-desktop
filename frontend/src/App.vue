@@ -5,9 +5,9 @@ import CommandInput from "./components/kernel/CommandInput.vue";
 import DiagnosticPanel from "./components/kernel/DiagnosticPanel.vue";
 
 /**
- * App Root Component (Electron + Native Rust Kernel)
+ * App Root Component (Electron + Native Kognisant Kernel)
  * Responsibility (SRP): Orchestrates the state flow between the UI components
- * and the Rust Kernel via the Electron Context Bridge (NAPI-RS).
+ * and the Kognisant Kernel via the Electron Context Bridge (NAPI-RS).
  */
 
 const result = ref("");
@@ -16,12 +16,12 @@ const isLoading = ref(false);
 
 /**
  * Handle execution requests from the CommandInput component.
- * Maps UI interactions to the 'phoenix' bridge exposed in preload.js.
+ * Maps UI interactions to the 'kognisant' bridge exposed in preload.js.
  * This calls Rust code directly in the Electron main process.
  */
 const handleKernelExecution = async (input) => {
     // Check if the bridge is available
-    if (!window.phoenix || !window.phoenix.kernel) {
+    if (!window.kognisant || !window.kognisant.kernel) {
         error.value = "Electron Native Bridge not found. Check preload.js.";
         return;
     }
@@ -36,9 +36,9 @@ const handleKernelExecution = async (input) => {
 
         // Routing based on input
         if (input === "DIAGNOSTIC_RUN") {
-            response = await window.phoenix.kernel.runDiagnostics();
+            response = await window.kognisant.kernel.runDiagnostics();
         } else {
-            response = await window.phoenix.kernel.execute(input);
+            response = await window.kognisant.kernel.execute(input);
         }
 
         result.value = response;
@@ -52,7 +52,7 @@ const handleKernelExecution = async (input) => {
 
 onMounted(() => {
     console.log(
-        "Phoenix UI initialized. Linking to Native Rust Kernel via Electron Bridge...",
+        "Kognisant UI initialized. Linking to Native Kognisant Kernel via Electron Bridge...",
     );
 });
 </script>
@@ -65,8 +65,10 @@ onMounted(() => {
                 <h2 class="text-2xl font-bold text-white tracking-tight">
                     Native Kernel Control
                 </h2>
-                <p class="text-sm text-phoenix-muted max-w-lg leading-relaxed">
-                    The Phoenix Engine is a native Rust module loaded directly
+                <p
+                    class="text-sm text-kognisant-muted max-w-lg leading-relaxed"
+                >
+                    The Kognisant Engine is a native Rust module loaded directly
                     into this process. There are no local servers or open ports.
                     Communication is handled via high-speed memory-mapped IPC.
                 </p>
@@ -97,13 +99,13 @@ onMounted(() => {
                 class="mt-12 p-4 rounded-lg bg-white/[0.02] border border-white/5"
             >
                 <h3
-                    class="text-xs font-bold text-phoenix-accent uppercase tracking-widest mb-3"
+                    class="text-xs font-bold text-kognisant-accent uppercase tracking-widest mb-3"
                 >
                     Architecture: Native Bindings (NAPI-RS)
                 </h3>
-                <p class="text-[11px] text-phoenix-muted leading-loose">
+                <p class="text-[11px] text-kognisant-muted leading-loose">
                     Unlike traditional desktop apps that run a local HTTP
-                    server, Phoenix uses direct <code>.node</code> bindings.
+                    server, Kognisant uses direct <code>.node</code> bindings.
                     When "EXECUTE" is clicked, the string is passed across the
                     FFI (Foreign Function Interface) boundary into the Rust
                     Kernel. This provides zero-latency execution and prevents

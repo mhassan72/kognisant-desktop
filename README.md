@@ -1,13 +1,13 @@
-# 🕊️ Phoenix Desktop
+# 🕊️ Kognisant Core
 
 A high-performance, professional-grade desktop application boilerplate utilizing a **Native Rust Kernel** integrated directly into **Electron** via **N-API**, featuring a **Vue 3** frontend with **Tailwind CSS**.
 
-## 🚀 The "Phoenix Kernel" Architecture
+## 🚀 The "Kognisant Kernel" Architecture
 
-Phoenix Desktop is built on a **Zero-Server Design**. Unlike typical desktop frameworks that run a local HTTP server to bridge languages, Phoenix uses direct memory-mapped bindings. This eliminates network latency, bypasses firewall issues, and prevents port conflicts.
+Kognisant Core is built on a **Zero-Server Design**. Unlike typical desktop frameworks that run a local HTTP server to bridge languages, Kognisant uses direct memory-mapped bindings. This eliminates network latency, bypasses firewall issues, and prevents port conflicts.
 
 ### Key Pillars:
-- **Rust Kernel (`/rust-kernel`)**: The high-performance "Brain." Compiled into a native Node.js `.node` binary using [NAPI-RS](https://napi.rs/). Handles CPU-intensive logic and OS-level operations at native speed.
+- **Kognisant Kernel (`/rust-kernel`)**: The high-performance "Brain." Compiled into a native Node.js `.node` binary using [NAPI-RS](https://napi.rs/). Handles CPU-intensive logic and OS-level operations at native speed.
 - **Electron Shell (`main.js`)**: The "Body." Loads the Rust library directly into the main process. Manages window lifecycles and secure IPC.
 - **Vue 3 Frontend (`/frontend`)**: The "Face." A reactive, component-based UI using the Composition API and Tailwind CSS for rapid, modern styling.
 
@@ -16,7 +16,7 @@ Phoenix Desktop is built on a **Zero-Server Design**. Unlike typical desktop fra
 ## 📂 Project Structure
 
 ```text
-phoenix_desktop/
+kognisant_core/
 ├── rust-kernel/            # Rust Source (The Engine)
 │   ├── src/lib.rs          # NAPI Bindings & Domain Logic
 │   ├── .cargo/config.toml  # Linker flags for macOS/Linux/Windows
@@ -57,12 +57,12 @@ npm run dev
 
 ## 🔗 How it Works: The IPC Bridge
 
-Phoenix follows a strict **Secure Bridge Pattern**. The UI is isolated and cannot access the Kernel directly. Instead, communication flows through a controlled tunnel:
+Kognisant follows a strict **Secure Bridge Pattern**. The UI is isolated and cannot access the Kernel directly. Instead, communication flows through a controlled tunnel:
 
 1. **Rust**: Define a logic engine in `rust-kernel/src/lib.rs` using the `#[napi]` macro.
 2. **Main Process**: `main.js` instantiates the `Kernel` class from the compiled `.node` module.
-3. **Preload**: `preload.js` exposes specific methods via `contextBridge.exposeInMainWorld('phoenix', ...)`.
-4. **Vue 3**: Components call `window.phoenix.kernel.execute(data)` and receive reactive updates.
+3. **Preload**: `preload.js` exposes specific methods via `contextBridge.exposeInMainWorld('kognisant', ...)`.
+4. **Vue 3**: Components call `window.kognisant.kernel.execute(data)` and receive reactive updates.
 
 ---
 
@@ -97,4 +97,4 @@ To ensure compatibility with environment-specific Rust versions (1.85.0), severa
 | `npm run clean` | Purge all `node_modules` and build artifacts |
 
 ---
-*Built with the Phoenix Kernel Architecture — Zero Servers. Zero Latency. Pure Performance.*
+*Built with the Kognisant Core Architecture — Zero Servers. Zero Latency. Pure Performance.*

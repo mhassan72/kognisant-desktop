@@ -7,12 +7,12 @@ use napi::bindgen_prelude::*;
 use serde::{Deserialize, Serialize};
 
 /// Domain Engine (SRP: Pure logic, unaware of Node.js/FFI)
-/// Encapsulates the core business rules.
-pub struct PhoenixEngine {
+/// Encapsulates the core business rules for Kognisant.
+pub struct KognisantEngine {
     version: String,
 }
 
-impl PhoenixEngine {
+impl KognisantEngine {
     pub fn new() -> Self {
         Self {
             version: env!("CARGO_PKG_VERSION").to_string(),
@@ -25,15 +25,15 @@ impl PhoenixEngine {
     }
 
     pub fn get_info(&self) -> String {
-        format!("Phoenix Engine v{}", self.version)
+        format!("Kognisant Engine v{}", self.version)
     }
 }
 
 /// Native Node.js Class (OOP: Bridge between Rust and JS)
-/// Responsibility (SRP): Mapping Node.js calls to the internal Engine.
+/// Responsibility (SRP): Mapping Node.js calls to the internal Kognisant Engine.
 #[napi]
 pub struct Kernel {
-    engine: PhoenixEngine,
+    engine: KognisantEngine,
 }
 
 #[napi]
@@ -41,7 +41,7 @@ impl Kernel {
     #[napi(constructor)]
     pub fn new() -> Self {
         Kernel {
-            engine: PhoenixEngine::new(),
+            engine: KognisantEngine::new(),
         }
     }
 
@@ -51,7 +51,7 @@ impl Kernel {
     pub fn execute_command(&self, input: String) -> String {
         let result = self.engine.process_text(&input);
         format!(
-            "{}\n\n[Kernel Verified: {}]",
+            "{}\n\n[Kognisant Kernel Verified: {}]",
             result,
             self.engine.get_info()
         )
@@ -61,7 +61,7 @@ impl Kernel {
     #[napi]
     pub fn run_diagnostics(&self) -> String {
         format!(
-            "DIAGNOSTIC_OK\nSource: Native Rust Module\nInterface: N-API Bindings\nEngine: {}",
+            "KOGNISANT_DIAGNOSTIC_OK\nSource: Native Rust Module\nInterface: N-API Bindings\nEngine: {}",
             self.engine.get_info()
         )
     }
