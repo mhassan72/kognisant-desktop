@@ -31,11 +31,12 @@ function createWindow() {
     },
   });
 
-  // In development, load from the Vite dev server
+  // In development, load from the Vite dev server (explicitly using 127.0.0.1)
   // In production, load the built index.html
   if (isDev) {
-    mainWindow.loadURL("http://localhost:5173");
-    // mainWindow.webContents.openDevTools();
+    mainWindow.loadURL("http://127.0.0.1:5173");
+    // Enable DevTools in development to debug white screen issues
+    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, "frontend/dist/index.html"));
   }

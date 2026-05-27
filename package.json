@@ -5,7 +5,7 @@
   "private": true,
   "main": "main.js",
   "scripts": {
-    "dev": "concurrently -n \"KERNEL,VITE,SHELL\" -c \"bgGreen.bold,bgBlue.bold,bgYellow.bold\" \"npm run dev:kernel\" \"npm run dev:frontend\" \"wait-on -t 60000 http-get://127.0.0.1:5173 && npm run dev:electron\"",
+    "dev": "concurrently -n \"KERNEL,VITE,SHELL\" -c \"bgGreen.bold,bgBlue.bold,bgYellow.bold\" \"npm run dev:kernel\" \"npm run dev:frontend\" \"wait-on http://127.0.0.1:5173 && npm run dev:electron\"",
     "dev:kernel": "cd rust-kernel && npm run build:debug",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:electron": "cross-env NODE_ENV=development electron .",

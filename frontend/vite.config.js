@@ -5,35 +5,28 @@ import vue from "@vitejs/plugin-vue";
 export default defineConfig({
   plugins: [vue()],
 
-  // Vite options tailored for Tauri development
-  // 1. prevent vite from obscuring rust errors
+  // Vite options tailored for Electron development
   clearScreen: false,
 
-  // 2. tauri expects a fixed port, fail if that port is not available
   server: {
     port: 5173,
     strictPort: true,
-    host: true, // Listen on all addresses
+    host: "127.0.0.1", // Force 127.0.0.1 to match Electron's loadURL
     hmr: {
       protocol: "ws",
-      host: "localhost",
+      host: "127.0.0.1",
       port: 5173,
-    },
-    watch: {
-      // 3. tell vite to ignore watching `src-tauri`
-      ignored: ["**/src-tauri/**"],
     },
   },
 
-  // 4. to make use of `TAURI_DEBUG` and other env variables
-  envPrefix: ["VITE_", "TAURI_"],
+  // Fix for assets loading in Electron
+  base: "./",
 
   build: {
-    // Tauri supports es2021
-    target: process.env.TAURI_PLATFORM == "windows" ? "chrome105" : "safari13",
-    // don't minify for debug builds
-    minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
-    // produce sourcemaps for debug builds
-    sourcemap: !!process.env.TAURI_DEBUG,
+    // Produce sourcemaps for debug builds
+    sourcemap: true,
+    // Ensure the output directory is consistent with main.js expectations
+    outDir: "dist",
+    emptyOutDir: true,
   },
 });

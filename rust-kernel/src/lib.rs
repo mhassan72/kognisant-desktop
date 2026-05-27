@@ -3,9 +3,6 @@
 #[macro_use]
 extern crate napi_derive;
 
-use napi::bindgen_prelude::*;
-use serde::{Deserialize, Serialize};
-
 /// Domain Engine (SRP: Pure logic, unaware of Node.js/FFI)
 /// Encapsulates the core business rules for Kognisant.
 pub struct KognisantEngine {

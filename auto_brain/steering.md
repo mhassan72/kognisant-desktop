@@ -34,5 +34,6 @@ This document defines the core development principles, coding standards, and arc
 
 ## 4. Environment-Specific Constraints
 *   **Rust Compatibility**: Pin dependencies in `rust-kernel/Cargo.toml` to remain compatible with **Rust 1.85.0**.
-*   **Build Lifecycle**: When Rust code changes, the native module must be rebuilt (`npm run build:kernel`) before restarting Electron.
+*   **Build Lifecycle**: When Rust code changes, the native module must be rebuilt (`npm run build:kernel` or `npm run dev:kernel`) before restarting Electron. A successful build is indicated by an exit code of 0.
+*   **Dev Logs**: Monitor the terminal for `[SHELL] Kognisant Kernel successfully linked to Electron process` to verify the N-API bridge is active. Ignore "unused import" warnings in Rust during active prototyping phases.
 *   **Dummy Icons**: Use valid 1x1 dummy PNG files in `rust-kernel/icons` during development to satisfy build requirements without focusing on assets.
