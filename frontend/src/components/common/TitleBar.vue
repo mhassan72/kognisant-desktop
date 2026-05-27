@@ -1,21 +1,33 @@
 <script setup>
-import { onMounted, ref, computed } from "vue";
+import { computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { Code2, PenTool } from "lucide-vue-next";
+import {
+    ChevronDown,
+    Box,
+    Zap,
+    Settings,
+    Bell,
+    Search,
+    Code2,
+    PenTool,
+    Cpu,
+} from "lucide-vue-next";
 
 /**
- * TitleBar Component (Kognisant Core)
- * Responsibility (SRP): Window controls, drag region, and Layout Switching.
- * Platform Awareness: Adapts control placement and styling for macOS vs Windows/Linux.
+ * Kognisant Core: High-Performance TitleBar
+ * Architecture: Optimized for frameless window integration.
+ * Reference Style: Sleek, agentic IDE (Vibe/IDE style).
+ *
+ * Responsibility: Handles OS-native spacing, drag regions, and layout switching.
  */
 
 const router = useRouter();
 const route = useRoute();
-const isMaximized = ref(false);
 
 // Platform Detection via Native Bridge
 const platform = window.kognisant?.platform || "win32";
 const isMac = computed(() => platform === "darwin");
+const isWin = computed(() => platform === "win32");
 
 const currentLayout = computed(() => route.meta.layout || "Codex");
 
@@ -23,169 +35,138 @@ const switchLayout = (layoutName) => {
     const targetPath = layoutName === "Codex" ? "/codex" : "/studio";
     router.push(targetPath);
 };
-
-const minimize = () => {
-    window.kognisant?.window?.minimize();
-};
-
-const toggleMaximize = () => {
-    window.kognisant?.window?.maximize();
-    isMaximized.value = !isMaximized.value;
-};
-
-const close = () => {
-    window.kognisant?.window?.close();
-};
-
-onMounted(() => {
-    console.log(`TitleBar initialized for platform: ${platform}`);
-});
 </script>
 
 <template>
-    <div
-        class="h-8 bg-kognisant-card flex items-center select-none fixed top-0 left-0 right-0 z-[1000] border-b border-white/5 drag-region px-2"
-        :class="isMac ? 'flex-row' : 'flex-row-reverse'"
+    <header
+        class="h-11 bg-kognisant-bg border-b border-kognisant-border flex items-center select-none fixed top-0 left-0 right-0 z-[2000] drag-region backdrop-blur-md"
     >
-        <!-- Window Controls Group -->
-        <div
-            class="flex items-center no-drag"
-            :class="isMac ? 'gap-2 pr-4' : 'flex-row-reverse'"
-        >
-            <!-- macOS Style: Traffic Lights -->
-            <template v-if="isMac">
-                <button
-                    @click="close"
-                    class="w-3 h-3 rounded-full bg-[#ff5f56] border border-black/10 hover:brightness-90 transition-all flex items-center justify-center group"
-                >
-                    <div
-                        class="hidden group-hover:block w-1.5 h-1.5 border-b-2 border-black/40 rotate-45 mb-1"
-                    ></div>
-                </button>
-                <button
-                    @click="minimize"
-                    class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-black/10 hover:brightness-90 transition-all flex items-center justify-center group"
-                >
-                    <div
-                        class="hidden group-hover:block w-1.5 h-[1px] bg-black/40"
-                    ></div>
-                </button>
-                <button
-                    @click="toggleMaximize"
-                    class="w-3 h-3 rounded-full bg-[#27c93f] border border-black/10 hover:brightness-90 transition-all flex items-center justify-center group"
-                >
-                    <div
-                        class="hidden group-hover:block w-1.5 h-1.5 border border-black/40"
-                    ></div>
-                </button>
-            </template>
+        <!-- macOS: Traffic Light Spacer (approx 80px) -->
+        <div v-if="isMac" class="w-20" />
 
-            <!-- Windows/Linux Style: Standard Icons -->
-            <template v-else>
-                <button
-                    @click="close"
-                    class="w-11 h-8 flex justify-center items-center hover:bg-rose-600 transition-colors focus:outline-none"
+        <!-- Left Section: Context & Layout Toggles -->
+        <div class="flex items-center gap-1 h-full px-2 no-drag">
+            <!-- App Icon/Launcher -->
+            <div
+                class="p-1.5 hover:bg-white/5 rounded-md cursor-pointer transition-colors mr-1"
+            >
+                <div
+                    class="w-4 h-4 bg-kognisant-accent rounded-[3px] flex items-center justify-center"
                 >
-                    <svg width="10" height="10" viewBox="0 0 10 10">
-                        <path
-                            d="M1 1L9 9M9 1L1 9"
-                            stroke="white"
-                            stroke-width="1.2"
-                            stroke-linecap="round"
-                        />
-                    </svg>
+                    <div class="w-1.5 h-1.5 bg-kognisant-bg rounded-full"></div>
+                </div>
+            </div>
+
+            <!-- Mode Switchers (Matching Reference Design) -->
+            <div
+                class="flex bg-kognisant-input p-1 rounded-lg border border-white/5"
+            >
+                <button
+                    @click="switchLayout('Codex')"
+                    class="px-3 h-6 flex items-center gap-1.5 rounded-md transition-all text-[10px] font-bold uppercase tracking-tight"
+                    :class="
+                        currentLayout === 'Codex'
+                            ? 'bg-white/10 text-white shadow-sm'
+                            : 'text-kognisant-muted hover:text-kognisant-text'
+                    "
+                >
+                    <Code2 :size="12" />
+                    IDE
                 </button>
                 <button
-                    @click="toggleMaximize"
-                    class="w-11 h-8 flex justify-center items-center hover:bg-white/10 transition-colors focus:outline-none"
+                    @click="switchLayout('Studio')"
+                    class="px-3 h-6 flex items-center gap-1.5 rounded-md transition-all text-[10px] font-bold uppercase tracking-tight"
+                    :class="
+                        currentLayout === 'Studio'
+                            ? 'bg-white/10 text-white shadow-sm'
+                            : 'text-kognisant-muted hover:text-kognisant-text'
+                    "
                 >
-                    <svg
-                        v-if="!isMaximized"
-                        width="10"
-                        height="10"
-                        viewBox="0 0 10 10"
+                    <PenTool :size="12" />
+                    Vibe
+                </button>
+            </div>
+
+            <!-- Project Selector -->
+            <div
+                class="flex items-center gap-1.5 px-3 py-1 hover:bg-white/5 rounded-md cursor-pointer transition-colors ml-2 group"
+            >
+                <span
+                    class="text-[11px] font-medium text-kognisant-muted group-hover:text-kognisant-text transition-colors"
+                >
+                    Project name
+                </span>
+                <ChevronDown :size="12" class="text-kognisant-muted" />
+            </div>
+        </div>
+
+        <!-- Center Section: System Command / Global Search -->
+        <div class="flex-1 flex justify-center items-center h-full px-4 group">
+            <div
+                class="w-full max-w-[400px] h-7 bg-kognisant-input border border-white/5 rounded-md flex items-center px-3 gap-2 no-drag cursor-text hover:border-white/10 transition-all"
+            >
+                <Search :size="12" class="text-kognisant-muted" />
+                <span class="text-[10px] text-kognisant-muted font-medium"
+                    >Search project or run kernel command...</span
+                >
+                <div class="ml-auto flex items-center gap-1 opacity-40">
+                    <span
+                        class="px-1 py-0.5 rounded bg-white/5 text-[9px] font-mono border border-white/10"
+                        >⌘</span
                     >
-                        <rect
-                            x="1.5"
-                            y="1.5"
-                            width="7"
-                            height="7"
-                            stroke="white"
-                            stroke-width="1"
-                            fill="none"
-                        />
-                    </svg>
-                    <svg v-else width="10" height="10" viewBox="0 0 10 10">
-                        <rect
-                            x="3.5"
-                            y="1.5"
-                            width="5"
-                            height="5"
-                            stroke="white"
-                            stroke-width="1"
-                            fill="none"
-                        />
-                        <path
-                            d="M1.5 3.5H6.5V8.5H1.5V3.5Z"
-                            fill="#1e293b"
-                            stroke="white"
-                            stroke-width="1"
-                        />
-                    </svg>
-                </button>
-                <button
-                    @click="minimize"
-                    class="w-11 h-8 flex justify-center items-center hover:bg-white/10 transition-colors focus:outline-none"
+                    <span
+                        class="px-1 py-0.5 rounded bg-white/5 text-[9px] font-mono border border-white/10"
+                        >K</span
+                    >
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section: System Metadata & User -->
+        <div
+            class="flex items-center h-full no-drag"
+            :class="isWin ? 'pr-[130px]' : 'pr-3'"
+        >
+            <div class="flex items-center gap-0.5 px-1">
+                <div
+                    class="p-2 text-kognisant-muted hover:text-white cursor-pointer transition-colors"
                 >
-                    <svg width="10" height="1" viewBox="0 0 10 1">
-                        <rect width="10" height="1" fill="white" />
-                    </svg>
-                </button>
-            </template>
-        </div>
+                    <Bell :size="14" />
+                </div>
+                <div
+                    class="p-2 text-kognisant-muted hover:text-white cursor-pointer transition-colors"
+                >
+                    <Zap :size="14" />
+                </div>
+                <div
+                    class="p-2 text-kognisant-muted hover:text-white cursor-pointer transition-colors"
+                >
+                    <Cpu :size="14" />
+                </div>
+                <div
+                    class="p-2 text-kognisant-muted hover:text-white cursor-pointer transition-colors"
+                >
+                    <Settings :size="14" />
+                </div>
+            </div>
 
-        <!-- Navigation Group (Layout Switcher) -->
-        <div
-            class="flex items-center h-full no-drag gap-1"
-            :class="isMac ? '' : 'pr-2'"
-        >
-            <button
-                @click="switchLayout('Codex')"
-                class="flex items-center gap-1.5 px-3 h-6 rounded-md transition-all text-[10px] font-bold tracking-wider uppercase"
-                :class="
-                    currentLayout === 'Codex'
-                        ? 'bg-kognisant-accent/10 text-kognisant-accent border border-kognisant-accent/20'
-                        : 'text-kognisant-muted hover:text-white hover:bg-white/5 border border-transparent'
-                "
-            >
-                <Code2 :size="12" />
-                Codex
-            </button>
-            <button
-                @click="switchLayout('Studio')"
-                class="flex items-center gap-1.5 px-3 h-6 rounded-md transition-all text-[10px] font-bold tracking-wider uppercase"
-                :class="
-                    currentLayout === 'Studio'
-                        ? 'bg-kognisant-accent/10 text-kognisant-accent border border-kognisant-accent/20'
-                        : 'text-kognisant-muted hover:text-white hover:bg-white/5 border border-transparent'
-                "
-            >
-                <PenTool :size="12" />
-                Studio
-            </button>
-        </div>
+            <!-- Profile / Config Dropdown -->
+            <div class="h-6 w-[1px] bg-kognisant-border mx-2"></div>
 
-        <!-- Center: App Branding -->
-        <div
-            class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 pointer-events-none opacity-50"
-        >
-            <div class="w-1.5 h-1.5 rounded-full bg-kognisant-accent"></div>
-            <span
-                class="text-[9px] font-black tracking-[0.3em] text-kognisant-text uppercase"
-                >Kognisant</span
+            <div
+                class="flex items-center gap-2 pl-1 pr-2 py-1 hover:bg-white/5 rounded-md cursor-pointer transition-all border border-transparent hover:border-white/5"
             >
+                <div
+                    class="w-5 h-5 rounded-full bg-gradient-to-br from-kognisant-accent to-syntax-keyword flex items-center justify-center overflow-hidden"
+                >
+                    <span class="text-[9px] font-bold text-kognisant-bg"
+                        >KC</span
+                    >
+                </div>
+                <ChevronDown :size="12" class="text-kognisant-muted" />
+            </div>
         </div>
-    </div>
+    </header>
 </template>
 
 <style scoped>
@@ -197,7 +178,14 @@ onMounted(() => {
     -webkit-app-region: no-drag;
 }
 
-button {
-    outline: none !important;
+/* Specific styling to match the reference image's density */
+button,
+div {
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Ensure consistent tracking for uppercase labels */
+.uppercase {
+    letter-spacing: 0.05em;
 }
 </style>

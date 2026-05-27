@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, nativeTheme } = require("electron");
 const path = require("path");
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
@@ -24,28 +24,61 @@ try {
 function createWindow() {
   const mainWindow = new BrowserWindow({
     title: "Kognisant Core",
-    width: 1400,
-    height: 900,
-    minWidth: 1000,
-    minHeight: 700,
-    frame: false, // Frameless for custom agentic UI
-    backgroundColor: "#0f172a",
+    width: 1440,
+    height: 960,
+    minWidth: 1024,
+    minHeight: 768,
+
+    // Frameless configuration using OS-native controls
+    // Reference Style: Modern Transparent/Vibrant IDE
+    frame: false,
+    titleBarStyle: "hidden",
+
+    // Standardize traffic light position for macOS
+    ...(process.platform === "darwin"
+      ? {
+          trafficLightPosition: { x: 16, y: 12 },
+        }
+      : {}),
+
+    // Support for Windows 10/11 native title bar buttons in a frameless window
+    titleBarOverlay:
+      process.platform === "win32"
+        ? {
+            color: "#0f172a",
+            symbolColor: "#94a3b8",
+            height: 32,
+          }
+        : false,
+
+    // Aesthetic: Transparency and Vibrancy effects for professional feel
+    transparent: process.platform === "darwin",
+    vibrancy: "under-window", // macOS native vibrancy
+    visualEffectState: "active",
+
+    // Fallback background color
+    backgroundColor: process.platform === "darwin" ? "#00000000" : "#0f172a",
+
     show: false,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, "preload.js"),
+      // Required for specific CSS filter effects
+      enablePreferredColorScheme: true,
     },
   });
 
   // In development, we use the Vite HMR server
   if (isDev) {
     mainWindow.loadURL("http://127.0.0.1:5173");
-    mainWindow.webContents.openDevTools();
+    // Detach DevTools to prevent layout disruption in agentic workspace
+    mainWindow.webContents.openDevTools({ mode: "detach" });
   } else {
     mainWindow.loadFile(path.join(__dirname, "frontend/dist/index.html"));
   }
 
+  // Graceful show to prevent white flash
   mainWindow.once("ready-to-show", () => {
     mainWindow.show();
   });
@@ -55,15 +88,13 @@ function createWindow() {
  * Agentic IPC Bridge Handlers
  *
  * Responsibility (SRP): Relaying structured instructions between the Vue frontend
- * and the Native Rust Engine. This handles high-density data like ThoughtSteps,
- * SubTasks, and Directory Nodes.
+ * and the Native Rust Engine.
  */
 
 // Executes a prompt through the Rust agentic orchestrator
 ipcMain.handle("kernel:agentic-execute", async (event, input) => {
   if (!kernel)
     throw new Error("Kognisant Kernel is offline or failed to initialize.");
-  // Direct FFI call to Rust. Returns KernelResponse struct.
   return kernel.executeAgenticCommand(input);
 });
 
@@ -81,9 +112,10 @@ ipcMain.handle("kernel:diagnostics", async () => {
 });
 
 /**
- * Window Management Protocol
+ * Native Window Control Fallbacks
  *
- * Powers the TitleBar component's minimize/maximize/close logic.
+ * While we use titleBarStyle: 'hidden' for native buttons,
+ * these handlers remain for custom UI triggers if needed.
  */
 ipcMain.on("window:minimize", () => {
   BrowserWindow.getFocusedWindow()?.minimize();
@@ -102,7 +134,7 @@ ipcMain.on("window:close", () => {
   app.quit();
 });
 
-// App Lifecycle
+// Application Lifecycle
 app.whenReady().then(() => {
   createWindow();
 
