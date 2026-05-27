@@ -12,6 +12,13 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("kognisant", {
   /**
+   * Environment Metadata
+   * Used for OS-native UI styling (e.g., window control placement).
+   * Values: 'darwin' (macOS), 'win32' (Windows), 'linux' (Linux).
+   */
+  platform: process.platform,
+
+  /**
    * Kernel Execution API
    * Direct links to the Native Rust Engine's agentic capabilities.
    */
