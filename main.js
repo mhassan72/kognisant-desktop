@@ -14,6 +14,7 @@ app.name = "Kognisant Core";
  */
 let kernel;
 try {
+  // The .node binary is generated in the rust-kernel folder
   const { Kernel } = require("./rust-kernel");
   kernel = new Kernel();
   console.log("[SHELL] Kognisant Kernel successfully linked to main process.");
@@ -33,7 +34,6 @@ function createWindow() {
     minHeight: 768,
 
     // Frameless configuration using OS-native controls
-    // Reference Style: Modern Transparent/Vibrant IDE
     frame: false,
     titleBarStyle: "hidden",
 
@@ -54,7 +54,7 @@ function createWindow() {
           }
         : false,
 
-    // Aesthetic: Coherent flat theme matching brand colors
+    // Aesthetic: Coherent flat theme matching brand colors (#2f3640)
     transparent: false,
     backgroundColor: "#2f3640",
 
@@ -63,12 +63,11 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, "preload.js"),
-      // Required for specific CSS filter effects
       enablePreferredColorScheme: true,
     },
   });
 
-  // In development, we use the Vite HMR server
+  // In development, we use the Vite HMR server (127.0.0.1 to avoid DNS resolution lag)
   if (isDev) {
     mainWindow.loadURL("http://127.0.0.1:5173");
     // Detach DevTools to prevent layout disruption in agentic workspace
@@ -94,13 +93,19 @@ function createWindow() {
 ipcMain.handle("kernel:agentic-execute", async (event, input) => {
   if (!kernel)
     throw new Error("Kognisant Kernel is offline or failed to initialize.");
+  // Direct FFI call to Rust. Returns KernelResponse struct.
   return kernel.executeAgenticCommand(input);
 });
 
 // Retrieves the project workspace tree for the Codex File Navigator
 ipcMain.handle("kernel:get-workspace", async (event, rootPath) => {
   if (!kernel) throw new Error("Kognisant Kernel offline.");
-  const target = rootPath || app.getAppPath();
+
+  /**
+   * Use the provided path or fallback to the project root directory.
+   * In development, __dirname points to the root of the project source.
+   */
+  const target = rootPath || __dirname;
   return kernel.getWorkspaceTree(target);
 });
 
