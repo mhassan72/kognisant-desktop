@@ -3,27 +3,34 @@ const path = require("path");
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
 /**
- * Native Rust Integration
- * We load the compiled Rust binary directly into the Node.js process.
- * This is the "Kognisant Kernel" - no HTTP server, no ports, zero latency.
+ * Kognisant Core: Native Rust Integration
+ * Loading the compiled Rust Kernel via N-API.
+ *
+ * Responsibility (SRP): Maintaining the lifecycle of the Rust logic engine
+ * and exposing it to the Electron process memory.
  */
 let kernel;
 try {
-  // The .node binary is generated in the rust-kernel folder
   const { Kernel } = require("./rust-kernel");
   kernel = new Kernel();
-  console.log("Kognisant Kernel successfully linked to Electron process.");
+  console.log("[SHELL] Kognisant Kernel successfully linked to main process.");
 } catch (err) {
-  console.error("Failed to load Kognisant Kernel:", err);
+  console.error(
+    "[SHELL] Critical Error: Failed to load Kognisant Kernel binary:",
+    err,
+  );
 }
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
     title: "Kognisant Core",
-    width: 1000,
-    height: 750,
-    frame: false, // Frameless as requested
+    width: 1400,
+    height: 900,
+    minWidth: 1000,
+    minHeight: 700,
+    frame: false, // Frameless for custom agentic UI
     backgroundColor: "#0f172a",
+    show: false,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -31,35 +38,53 @@ function createWindow() {
     },
   });
 
-  // In development, load from the Vite dev server (explicitly using 127.0.0.1)
-  // In production, load the built index.html
+  // In development, we use the Vite HMR server
   if (isDev) {
     mainWindow.loadURL("http://127.0.0.1:5173");
-    // Enable DevTools in development to debug white screen issues
     mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, "frontend/dist/index.html"));
   }
+
+  mainWindow.once("ready-to-show", () => {
+    mainWindow.show();
+  });
 }
 
 /**
- * IPC Bridge: The "Link" between UI and Kognisant Kernel
- * Responsibility (SRP): Relaying messages from the Vue frontend
- * directly to the native Rust functions.
+ * Agentic IPC Bridge Handlers
+ *
+ * Responsibility (SRP): Relaying structured instructions between the Vue frontend
+ * and the Native Rust Engine. This handles high-density data like ThoughtSteps,
+ * SubTasks, and Directory Nodes.
  */
-ipcMain.handle("kernel:execute", async (event, input) => {
-  if (!kernel) return "Error: Kognisant Kernel not loaded.";
 
-  // This call happens in-process. No network stack involved.
-  return kernel.executeCommand(input);
+// Executes a prompt through the Rust agentic orchestrator
+ipcMain.handle("kernel:agentic-execute", async (event, input) => {
+  if (!kernel)
+    throw new Error("Kognisant Kernel is offline or failed to initialize.");
+  // Direct FFI call to Rust. Returns KernelResponse struct.
+  return kernel.executeAgenticCommand(input);
 });
 
+// Retrieves the project workspace tree for the Codex File Navigator
+ipcMain.handle("kernel:get-workspace", async (event, rootPath) => {
+  if (!kernel) throw new Error("Kognisant Kernel offline.");
+  const target = rootPath || app.getAppPath();
+  return kernel.getWorkspaceTree(target);
+});
+
+// System diagnostics
 ipcMain.handle("kernel:diagnostics", async () => {
-  if (!kernel) return "Error: Kognisant Kernel not loaded.";
+  if (!kernel) return "STATUS_DISCONNECTED";
   return kernel.runDiagnostics();
 });
 
-// Window Controls for Frameless UI
+/**
+ * Window Management Protocol
+ *
+ * Powers the TitleBar component's minimize/maximize/close logic.
+ */
 ipcMain.on("window:minimize", () => {
   BrowserWindow.getFocusedWindow()?.minimize();
 });
@@ -77,6 +102,7 @@ ipcMain.on("window:close", () => {
   app.quit();
 });
 
+// App Lifecycle
 app.whenReady().then(() => {
   createWindow();
 
