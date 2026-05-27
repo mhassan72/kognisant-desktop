@@ -2,6 +2,9 @@ const { app, BrowserWindow, ipcMain, nativeTheme } = require("electron");
 const path = require("path");
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
+// Force application name for menu and system indicators
+app.name = "Kognisant Core";
+
 /**
  * Kognisant Core: Native Rust Integration
  * Loading the compiled Rust Kernel via N-API.
@@ -45,19 +48,15 @@ function createWindow() {
     titleBarOverlay:
       process.platform === "win32"
         ? {
-            color: "#0f172a",
-            symbolColor: "#94a3b8",
+            color: "#2f3640",
+            symbolColor: "#f5f6fa",
             height: 32,
           }
         : false,
 
-    // Aesthetic: Transparency and Vibrancy effects for professional feel
-    transparent: process.platform === "darwin",
-    vibrancy: "under-window", // macOS native vibrancy
-    visualEffectState: "active",
-
-    // Fallback background color
-    backgroundColor: process.platform === "darwin" ? "#00000000" : "#0f172a",
+    // Aesthetic: Coherent flat theme matching brand colors
+    transparent: false,
+    backgroundColor: "#2f3640",
 
     show: false,
     webPreferences: {

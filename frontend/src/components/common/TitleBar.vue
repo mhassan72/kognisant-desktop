@@ -1,9 +1,9 @@
+```
 <script setup>
 import { computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import {
     ChevronDown,
-    Box,
     Zap,
     Settings,
     Bell,
@@ -14,11 +14,9 @@ import {
 } from "lucide-vue-next";
 
 /**
- * Kognisant Core: High-Performance TitleBar
- * Architecture: Optimized for frameless window integration.
- * Reference Style: Sleek, agentic IDE (Vibe/IDE style).
- *
- * Responsibility: Handles OS-native spacing, drag regions, and layout switching.
+ * Kognisant Core: Flat Professional TitleBar
+ * Architecture: Optimized for frameless window with brand-specific color palette.
+ * Colors: Primary (#706fd3), Dark (#2f3640), Light (#f5f6fa).
  */
 
 const router = useRouter();
@@ -39,34 +37,32 @@ const switchLayout = (layoutName) => {
 
 <template>
     <header
-        class="h-11 bg-kognisant-bg border-b border-kognisant-border flex items-center select-none fixed top-0 left-0 right-0 z-[2000] drag-region backdrop-blur-md"
+        class="h-10 bg-kognisant-bg border-b border-kognisant-border flex items-center select-none fixed top-0 left-0 right-0 z-[2000] drag-region"
     >
-        <!-- macOS: Traffic Light Spacer (approx 80px) -->
+        <!-- macOS: Traffic Light Spacer -->
         <div v-if="isMac" class="w-20" />
 
-        <!-- Left Section: Context & Layout Toggles -->
+        <!-- Left Section: Mode Switchers -->
         <div class="flex items-center gap-1 h-full px-2 no-drag">
-            <!-- App Icon/Launcher -->
-            <div
-                class="p-1.5 hover:bg-white/5 rounded-md cursor-pointer transition-colors mr-1"
-            >
+            <!-- Brand Mark -->
+            <div class="mr-2 flex items-center justify-center pl-1">
                 <div
-                    class="w-4 h-4 bg-kognisant-accent rounded-[3px] flex items-center justify-center"
+                    class="w-4 h-4 bg-kognisant-primary rounded-sm flex items-center justify-center"
                 >
-                    <div class="w-1.5 h-1.5 bg-kognisant-bg rounded-full"></div>
+                    <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
                 </div>
             </div>
 
-            <!-- Mode Switchers (Matching Reference Design) -->
+            <!-- Flat Mode Toggle -->
             <div
-                class="flex bg-kognisant-input p-1 rounded-lg border border-white/5"
+                class="flex bg-kognisant-input p-0.5 rounded-md border border-kognisant-border"
             >
                 <button
                     @click="switchLayout('Codex')"
-                    class="px-3 h-6 flex items-center gap-1.5 rounded-md transition-all text-[10px] font-bold uppercase tracking-tight"
+                    class="px-3 h-6 flex items-center gap-1.5 rounded-sm transition-all text-[10px] font-bold uppercase tracking-tight"
                     :class="
                         currentLayout === 'Codex'
-                            ? 'bg-white/10 text-white shadow-sm'
+                            ? 'bg-kognisant-primary text-white'
                             : 'text-kognisant-muted hover:text-kognisant-text'
                     "
                 >
@@ -75,10 +71,10 @@ const switchLayout = (layoutName) => {
                 </button>
                 <button
                     @click="switchLayout('Studio')"
-                    class="px-3 h-6 flex items-center gap-1.5 rounded-md transition-all text-[10px] font-bold uppercase tracking-tight"
+                    class="px-3 h-6 flex items-center gap-1.5 rounded-sm transition-all text-[10px] font-bold uppercase tracking-tight"
                     :class="
                         currentLayout === 'Studio'
-                            ? 'bg-white/10 text-white shadow-sm'
+                            ? 'bg-kognisant-primary text-white'
                             : 'text-kognisant-muted hover:text-kognisant-text'
                     "
                 >
@@ -87,29 +83,30 @@ const switchLayout = (layoutName) => {
                 </button>
             </div>
 
-            <!-- Project Selector -->
+            <!-- Project Breadcrumb -->
             <div
-                class="flex items-center gap-1.5 px-3 py-1 hover:bg-white/5 rounded-md cursor-pointer transition-colors ml-2 group"
+                class="flex items-center gap-1.5 px-3 py-1 hover:bg-white/5 rounded-md cursor-pointer transition-colors ml-1 group"
             >
                 <span
-                    class="text-[11px] font-medium text-kognisant-muted group-hover:text-kognisant-text transition-colors"
+                    class="text-[11px] font-semibold text-kognisant-muted group-hover:text-kognisant-text"
                 >
-                    Project name
+                    Project_Context
                 </span>
                 <ChevronDown :size="12" class="text-kognisant-muted" />
             </div>
         </div>
 
-        <!-- Center Section: System Command / Global Search -->
+        <!-- Center Section: Command Bar -->
         <div class="flex-1 flex justify-center items-center h-full px-4 group">
             <div
-                class="w-full max-w-[400px] h-7 bg-kognisant-input border border-white/5 rounded-md flex items-center px-3 gap-2 no-drag cursor-text hover:border-white/10 transition-all"
+                class="w-full max-w-[360px] h-7 bg-kognisant-input border border-kognisant-border rounded-md flex items-center px-3 gap-2 no-drag cursor-text hover:bg-black/20 transition-all"
             >
                 <Search :size="12" class="text-kognisant-muted" />
-                <span class="text-[10px] text-kognisant-muted font-medium"
-                    >Search project or run kernel command...</span
+                <span
+                    class="text-[10px] text-kognisant-muted font-medium truncate"
+                    >Search or instruct the kernel...</span
                 >
-                <div class="ml-auto flex items-center gap-1 opacity-40">
+                <div class="ml-auto flex items-center gap-1 opacity-30">
                     <span
                         class="px-1 py-0.5 rounded bg-white/5 text-[9px] font-mono border border-white/10"
                         >⌘</span
@@ -122,48 +119,40 @@ const switchLayout = (layoutName) => {
             </div>
         </div>
 
-        <!-- Right Section: System Metadata & User -->
+        <!-- Right Section: System Status & Profile -->
         <div
             class="flex items-center h-full no-drag"
-            :class="isWin ? 'pr-[130px]' : 'pr-3'"
+            :class="isWin ? 'pr-[132px]' : 'pr-2'"
         >
-            <div class="flex items-center gap-0.5 px-1">
+            <div class="flex items-center gap-0.5">
                 <div
-                    class="p-2 text-kognisant-muted hover:text-white cursor-pointer transition-colors"
-                >
-                    <Bell :size="14" />
-                </div>
-                <div
-                    class="p-2 text-kognisant-muted hover:text-white cursor-pointer transition-colors"
+                    class="p-2 text-kognisant-muted hover:text-kognisant-primary cursor-pointer transition-colors"
                 >
                     <Zap :size="14" />
                 </div>
                 <div
-                    class="p-2 text-kognisant-muted hover:text-white cursor-pointer transition-colors"
+                    class="p-2 text-kognisant-muted hover:text-kognisant-primary cursor-pointer transition-colors"
                 >
                     <Cpu :size="14" />
                 </div>
                 <div
-                    class="p-2 text-kognisant-muted hover:text-white cursor-pointer transition-colors"
+                    class="p-2 text-kognisant-muted hover:text-kognisant-primary cursor-pointer transition-colors"
                 >
                     <Settings :size="14" />
                 </div>
             </div>
 
-            <!-- Profile / Config Dropdown -->
-            <div class="h-6 w-[1px] bg-kognisant-border mx-2"></div>
+            <div class="h-5 w-[1px] bg-kognisant-border mx-2"></div>
 
+            <!-- Profile Circle -->
             <div
-                class="flex items-center gap-2 pl-1 pr-2 py-1 hover:bg-white/5 rounded-md cursor-pointer transition-all border border-transparent hover:border-white/5"
+                class="flex items-center gap-2 pl-1 pr-1 py-1 hover:bg-white/5 rounded-md cursor-pointer transition-all"
             >
                 <div
-                    class="w-5 h-5 rounded-full bg-gradient-to-br from-kognisant-accent to-syntax-keyword flex items-center justify-center overflow-hidden"
+                    class="w-5 h-5 rounded-full bg-kognisant-primary flex items-center justify-center border border-white/10 shadow-sm"
                 >
-                    <span class="text-[9px] font-bold text-kognisant-bg"
-                        >KC</span
-                    >
+                    <span class="text-[9px] font-black text-white">KC</span>
                 </div>
-                <ChevronDown :size="12" class="text-kognisant-muted" />
             </div>
         </div>
     </header>
@@ -178,14 +167,17 @@ const switchLayout = (layoutName) => {
     -webkit-app-region: no-drag;
 }
 
-/* Specific styling to match the reference image's density */
-button,
-div {
-    -webkit-font-smoothing: antialiased;
+button {
+    outline: none !important;
 }
 
-/* Ensure consistent tracking for uppercase labels */
+/* Antialiasing for high-density small text */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 .uppercase {
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
 }
 </style>

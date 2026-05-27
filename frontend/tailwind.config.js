@@ -1,38 +1,62 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
         kognisant: {
-          bg: "#0f1115", // Darker neutral for professional IDE
-          card: "#181a1f", // Translucent-capable neutral
-          sidebar: "#1c1e24", // High contrast sidebar
-          accent: "#38bdf8", // Primary action color
-          muted: "#94a3b8", // Standard muted text
-          text: "#f8fafc", // High-readability text
-          border: "rgba(255, 255, 255, 0.06)", // Subtle separators
-          input: "#090a0d", // Deep contrast for input areas
+          // Brand Colors
+          primary: "#706fd3",
+          "primary-hover": "#5b59b3",
+
+          // Dark Theme (Requested: #2f3640)
+          dark: {
+            bg: "#2f3640",
+            sidebar: "#252b33",
+            card: "#353d48",
+            border: "rgba(255, 255, 255, 0.08)",
+            text: "#f5f6fa",
+            muted: "#8c94a1",
+            input: "#21272f",
+          },
+
+          // Light Theme (Requested: #f5f6fa)
+          light: {
+            bg: "#f5f6fa",
+            sidebar: "#ffffff",
+            card: "#ffffff",
+            border: "rgba(47, 54, 64, 0.1)",
+            text: "#2f3640",
+            muted: "#7f8c8d",
+            input: "#e8eaed",
+          },
+
+          // Semantic Aliases (Mapped to Dark by default for IDE look)
+          bg: "#2f3640",
+          card: "#353d48",
+          sidebar: "#252b33",
+          accent: "#706fd3",
+          text: "#f5f6fa",
+          muted: "#8c94a1",
+          border: "rgba(255, 255, 255, 0.08)",
+          input: "#21272f",
         },
         syntax: {
-          keyword: "#c678dd",
-          function: "#61afef",
-          string: "#98c379",
-          comment: "#5c6370",
-          variable: "#e06c75",
+          keyword: "#706fd3",
+          function: "#487eb0",
+          string: "#44bd32",
+          comment: "#7f8c8d",
+          variable: "#e84118",
         },
       },
-      backgroundImage: {
-        "vibrant-gradient":
-          "linear-gradient(135deg, rgba(56, 189, 248, 0.05) 0%, rgba(15, 17, 21, 0) 100%)",
-      },
       borderRadius: {
-        xl: "12px",
-        "2xl": "16px",
+        xl: "8px",
+        "2xl": "12px",
       },
       boxShadow: {
-        "agent-panel": "0 20px 50px -12px rgba(0, 0, 0, 0.5)",
-        "inner-glow": "inset 0 1px 0 0 rgba(255, 255, 255, 0.05)",
+        "flat-sm": "0 2px 4px rgba(0, 0, 0, 0.1)",
+        "flat-md": "0 4px 6px rgba(0, 0, 0, 0.1)",
       },
       fontSize: {
         xxs: "0.625rem",

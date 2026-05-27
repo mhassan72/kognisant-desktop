@@ -1,5 +1,6 @@
 {
   "name": "kognisant-core",
+  "productName": "Kognisant Core",
   "version": "1.0.0",
   "description": "Kognisant Core - Native Rust Kernel + Electron + Vue 3",
   "private": true,
