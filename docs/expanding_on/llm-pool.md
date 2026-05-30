@@ -114,15 +114,17 @@ struct ModelScore {
 
 ### Scoring Formula
 
+> Note: For the authoritative implementation with exact weights, see `docs/architecture-decisions.md` Section 6.
+
 ```
 total_score = (
     capability_match *  // Binary gate — 0 disqualifies
-    (quality * 0.25 +
-     speed * 0.20 +
-     cost * 0.20 +
-     locality * 0.15 +
-     user_preference * 0.10 +
-     reliability * 0.10)
+    (speed * 0.25 +
+     cost * 0.25 +
+     quality * 0.15 +
+     user_preference * 0.05 +
+     reliability * 0.10 +
+     locality_bonus(request.complexity))  // 0.05-0.30 depending on complexity
 )
 ```
 

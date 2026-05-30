@@ -1280,7 +1280,7 @@ fn score_model(model: &ModelInfo, request: &LlmRequest, config: &RoutingConfig) 
         quality_tier * 0.15 +
         user_preference * 0.05 +
         model.reliability_score * 0.10 +
-        if model.is_local { 0.20 } else { 0.0 } // Locality bonus
+        if model.is_local { locality_bonus(request, model) } else { 0.0 }
     );
 
     score
@@ -1401,7 +1401,7 @@ struct DegradedCognitionState {
         affect_dynamics: true,   // Mathematical, no LLM needed
         goal_market: true,       // Priority math, no LLM needed
         prediction_l1_l2: true,  // Statistical prediction layers
-        prediction_l3_l4_l5: false, // Semantic prediction needs LLM
+        prediction_l3_l4: false, // Semantic/pragmatic/strategic prediction needs LLM
         agent_society: false,    // Agents need LLM for reasoning
         self_modification: false, // Patch generation needs LLM
         skill_mining: false,     // TAG and SUGGEST stages need LLM

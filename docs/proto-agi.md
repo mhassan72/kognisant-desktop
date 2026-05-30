@@ -372,7 +372,7 @@ pub enum TickPhase {
 }
 
 pub struct CognitiveKernel {
-    state: Arc<RwLock<SystemState>>,
+    state: SystemState,  // Owned, not shared — see architecture-decisions.md §1
     perception: PerceptionCortex,
     predictive_stack: PredictiveStack,
     memory: MemoryPalace,
@@ -687,7 +687,7 @@ Every cognitive limit derives from physical constraints. The system profiles har
 | Tier | RAM | Cores | Tick Rate | Agents | Embedding |
 |------|-----|-------|-----------|--------|-----------|
 | Minimal | ≤4GB | Any | 2Hz | 4 | API only |
-| Standard | 4-16GB | Any | 10Hz | 12 | MiniLM (384d) |
+| Standard | 4-16GB | Any | 10Hz | 13 | MiniLM (384d) |
 | Performance | 16-32GB | + GPU | 10Hz | 13 | Nomic (768d) |
 | Server | 32GB+ | Many | 10Hz | 13+ | Nomic (768d, GPU) |
 
