@@ -1,209 +1,132 @@
-# 🧠 Kognisant Desktop
+# Kognisant Desktop (KC)
 
-A continuous, self-modifying, predictive processing system running locally as a desktop application. Cognition emerges from interacting subsystems — not a sequential pipeline.
+A continuous, self-modifying, predictive processing engine that runs in your terminal. KC treats cognition as an emergent property of interacting subsystems — not a sequential pipeline. All data stays on-device, encrypted at rest, with optional E2E encrypted cloud sync.
 
----
-
-## What This Is
-
-Kognisant Desktop is a **Proto-AGI v2** cognitive architecture. It replaces the traditional agent model (reactive, turn-based, externally prompted) with a continuous cognitive system that is always running, self-directed, and intrinsically motivated.
-
-The system continuously predicts what will happen next — user messages, file changes, build outcomes, its own internal states. Prediction error (surprise) is the fundamental currency of cognition. Minimizing long-term surprise drives all behavior.
-
-For the full architecture document, see [`docs/proto-agi.md`](docs/proto-agi.md).
+> **Design philosophy**: The user should always understand what the system is doing, why, what could happen next, and how to intervene.
 
 ---
 
-## Architecture at a Glance
+## What Is This?
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│              CONTINUOUS COGNITIVE KERNEL (Rust + N-API)           │
-│                                                                   │
-│  Perception-Action Loop (10Hz tick)                              │
-│    → Predictive Stack (5 layers)                                 │
-│    → Surprise Detection → Belief Update → Action Selection       │
-│                                                                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │ Memory Palace │  │  Homunculus  │  │   Affective  │          │
-│  │ (6-tier)      │  │ (Self-Model) │  │   Economy    │          │
-│  └──────────────┘  └──────────────┘  └──────────────┘          │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │    World     │  │  Goal Market │  │    Agent     │          │
-│  │  Simulator   │  │  (Bidding)   │  │   Society    │          │
-│  └──────────────┘  └──────────────┘  └──────────────┘          │
-│                                                                   │
-│  Meta-Cognitive Controller • Self-Modification Engine             │
-│  Cognitive Homeostasis • LLM Pool (multi-provider)               │
-└─────────────────────────────────────────────────────────────────┘
-                              │ IPC (N-API)
-┌─────────────────────────────────────────────────────────────────┐
-│              VUE 3 FRONTEND (Vite + Tailwind)                    │
-│  Views: Chat | Cognitive Graph | Memory Palace | Goal Market     │
-│         Agent Society | World Simulator | Self-Model | Telemetry │
-└─────────────────────────────────────────────────────────────────┘
-                              │ HTTPS (outbound)
-              ┌───────────────┴───────────────┐
-              │         LLM PROVIDERS          │
-              │  Kognisant API • Ollama (local) │
-              │  OpenAI • Any compatible endpoint│
-              └────────────────────────────────┘
-```
+KC is a TUI-based cognitive runtime built entirely in Rust. It implements predictive processing and active inference as a practical engineering system — a local proto-AGI that observes your project, predicts what you need, and acts with your approval.
 
-Key subsystems:
-- **Predictive Processing Stack** — 5-layer hierarchy generating predictions, computing surprise, propagating errors
-- **Neuro-Symbolic Memory Palace** — 6-tier competitive activation memory (working → episodic → semantic → procedural → LTM → dream)
-- **Homunculus** — Self-model that predicts the system's own behavior and detects self-surprise
-- **Affective Economy** — 6D affect state that drives cognitive resource allocation
-- **Agent Society** — 12 specialist agents competing via a bidding market (emergent orchestration, no central planner)
-- **Goal Market** — Goals generated from prediction errors, resolved via value-weighted bidding
-- **World Simulator** — Mental sandbox with counterfactual reasoning and causal chains
-- **Self-Modification Engine** — Reads/modifies own source, recompiles, hot-reloads (safety-gated)
-- **Cognitive Homeostasis** — Immune system detecting and correcting pathological cognition patterns
-- **LLM Pool** — Local multi-provider router (Kognisant API, Ollama, OpenAI-compat, custom endpoints)
+It is **not** a chatbot. It is a continuous cognitive loop (10Hz when active, 1Hz when idle) that perceives your workspace, maintains beliefs about your project, generates goals from prediction errors, and selects actions through a competitive multi-agent society.
+
+### Core Properties
+
+- **Continuous**: Always running, always predicting. Not turn-based.
+- **Self-modifying**: Can read, patch, recompile, and hot-reload its own source — bounded by constitutional safety constraints.
+- **Predictive**: Every subsystem generates predictions and updates beliefs from surprise (prediction error).
+- **Human-in-the-loop**: Never automates judgment. Skill extraction, action approval, and self-modification all require human consent at appropriate gates.
+- **Local-first**: All cognition runs on your machine. LLM inference is one modality among many, routed through a multi-provider pool.
 
 ---
 
-## Technical Stack
+## TUI Visibility Modes
 
-| Layer | Technology | Role |
-|-------|-----------|------|
-| Cognitive Kernel | **Rust** (compiled via NAPI-RS) | 10Hz tick loop, all cognitive subsystems, native performance |
-| Desktop Shell | **Electron** (`main.js` + `preload.js`) | Window management, secure IPC bridge |
-| Frontend | **Vue 3** + **Tailwind CSS** (Vite) | Real-time cognitive visualization, reactive UI |
-| Storage | **SQLite** (rusqlite, bundled) | Memory palace, telemetry, world model, cognitive state |
-| Vector Search | **HNSW** / sqlite-vss | Semantic network approximate nearest neighbor |
-| Embeddings | **ONNX Runtime** (ort) | Local embedding generation (CPU/GPU) |
-| LLM Routing | Multi-provider pool | Kognisant API, Ollama, OpenAI-compat, env-var discovery |
-| Version Control | **git2** (libgit2) | Self-modification lineage tracking |
-| Sync | **AES-256-GCM** + HKDF | E2E encrypted cloud backup & multi-device |
+KC runs in the terminal with three visibility modes. Switch between them based on how much you want to see:
 
-Zero-server architecture: no local HTTP server, no WebSockets. The Rust kernel is loaded directly into Electron's main process via N-API. Communication flows through `contextBridge` — direct memory-mapped bindings.
+| Mode | Purpose | What You See |
+|------|---------|-------------|
+| **Focus** | Daily driver | Conversation + workspace status. Minimal cognitive noise. |
+| **Trace** | Operational visibility | Active goals, agent bids, prediction errors, action pipeline. |
+| **Paranoia** | Full observability | Every tick phase, memory activations, affect vector, DAG execution, replay controls. |
+
+The system behaves identically in all modes — visibility doesn't change cognition, only what's rendered.
 
 ---
 
 ## Project Structure
 
 ```
-kognisant_core/
-├── rust-kernel/
-│   ├── Cargo.toml
-│   ├── .cargo/config.toml
-│   └── src/
-│       ├── lib.rs                    # N-API entry
-│       ├── bridge.rs                 # IPC routing + streaming
-│       ├── continuous/               # Continuous cognitive loop
-│       │   ├── kernel.rs             # Main 10Hz loop
-│       │   ├── tick.rs               # Tick phases, scheduling
-│       │   └── state.rs              # SystemState (shared, lock-free)
-│       ├── perception/               # Sensory cortex
-│       │   ├── cortex.rs             # Multi-modal perception
-│       │   └── modalities/           # user_message, file_system, process, timer, self_state
-│       ├── prediction/               # Predictive processing stack
-│       │   ├── stack.rs              # 5-layer hierarchy
-│       │   ├── layer.rs              # Individual PP layer
-│       │   ├── surprise.rs           # Surprise computation
-│       │   └── precision.rs          # Precision weighting
-│       ├── memory/                   # Memory palace (6-tier)
-│       │   ├── palace.rs             # Orchestrator
-│       │   ├── working.rs            # Working memory
-│       │   ├── episodic.rs           # Episodic buffer (ring buffer)
-│       │   ├── semantic.rs           # Semantic network (graph + vectors)
-│       │   ├── procedural.rs         # Procedural memory (RL + rules)
-│       │   ├── consolidated.rs       # Long-term memory (compressed)
-│       │   └── dream.rs              # Dream engine (consolidation)
-│       ├── self_model/               # Homunculus
-│       │   ├── homunculus.rs         # Self-simulation
-│       │   ├── introspection.rs      # Self-awareness injection
-│       │   └── levels.rs             # L0-L5 self-awareness
-│       ├── affect/                   # Affective economy
-│       │   ├── economy.rs            # 6D affect + budget
-│       │   ├── dynamics.rs           # Temporal dynamics, decay
-│       │   └── budget.rs             # Cognitive resource allocation
-│       ├── world/                    # World simulator
-│       │   ├── simulator.rs          # Mental sandbox
-│       │   ├── causal.rs             # Causal engine
-│       │   ├── beliefs.rs            # Belief graph
-│       │   └── social.rs             # User model
-│       ├── goals/                    # Goal market
-│       │   ├── market.rs             # Bid resolution
-│       │   ├── generation.rs         # Goal generation from surprise
-│       │   ├── value_function.rs     # Learned values
-│       │   └── hierarchy.rs          # Goal/subgoal trees
-│       ├── society/                  # Multi-agent society
-│       │   ├── society.rs            # Agent container + market
-│       │   ├── bidding.rs            # Coalition formation
-│       │   └── agents/               # 12 specialist agents
-│       ├── meta/                     # Meta-cognitive controller
-│       │   ├── controller.rs         # MCC orchestration
-│       │   ├── attention.rs          # Attention allocation
-│       │   └── sleep.rs              # Consolidation scheduling
-│       ├── action/                   # Motor cortex
-│       │   ├── cortex.rs             # Action selection
-│       │   └── effectors/            # message, tool, llm, file, self_modify, sleep
-│       ├── self_modify/              # Self-modification engine
-│       │   ├── engine.rs             # Orchestrator
-│       │   ├── safety_gate.rs        # Immutable markers, critical path
-│       │   └── rollback.rs           # Restore on failure
-│       ├── llm/                      # LLM pool (multi-provider)
-│       │   ├── pool.rs               # Routes to best available provider
-│       │   ├── kognisant.rs          # Kognisant API (default)
-│       │   ├── ollama.rs             # Local Ollama
-│       │   ├── openai_compat.rs      # Any OpenAI-compatible endpoint
-│       │   └── selector.rs           # Model selection logic
-│       ├── tools/                    # Tool system
-│       │   ├── registry.rs
-│       │   └── sandbox.rs
-│       ├── telemetry/                # Full cognitive tracing
-│       └── config/                   # Settings, auth
-├── frontend/                         # Vue 3 + Tailwind
-│   └── src/
-│       ├── views/                    # Chat, CognitiveGraph, MemoryPalace, GoalMarket, etc.
-│       ├── stores/                   # Pinia stores per subsystem
-│       ├── components/               # cognitive/, memory/, affect/, common/
-│       └── composables/              # useCognitiveStream (10Hz), useKernel
-├── main.js                           # Electron main process
-├── preload.js                        # Secure context bridge
-└── package.json                      # Root orchestration
+kognisant-desktop/
+├── src/                        # Rust source (the entire application)
+│   ├── main.rs                 # Entry point — TUI + cognitive kernel
+│   ├── tui/                    # Terminal UI (ratatui)
+│   │   ├── mod.rs
+│   │   ├── focus.rs            # Focus mode (minimal, daily driver)
+│   │   ├── trace.rs            # Trace mode (operational visibility)
+│   │   ├── paranoia.rs         # Paranoia mode (full observability)
+│   │   ├── approval.rs         # Action approval dialogs
+│   │   ├── dag.rs              # Execution DAG viewer
+│   │   └── memory_view.rs      # Memory visibility layer
+│   ├── cognitive/              # Continuous cognitive loop
+│   │   ├── kernel.rs           # 10Hz tick loop
+│   │   ├── tick.rs             # Tick phases
+│   │   └── state.rs            # SystemState
+│   ├── perception/             # Sensory cortex
+│   ├── prediction/             # Predictive processing stack
+│   ├── memory/                 # Memory palace (6-tier)
+│   ├── self_model/             # Homunculus
+│   ├── affect/                 # Affective economy
+│   ├── world/                  # World simulator
+│   ├── goals/                  # Goal market
+│   ├── society/                # Multi-agent society
+│   ├── meta/                   # Meta-cognitive controller
+│   ├── action/                 # Motor cortex + effectors
+│   ├── self_modify/            # Self-modification engine
+│   ├── llm/                    # LLM pool (multi-provider)
+│   ├── skills/                 # Skill extraction + lifecycle
+│   │   ├── mining.rs           # SkillMiningAgent pipeline
+│   │   ├── lifecycle.rs        # TTL, expiration, renewal
+│   │   ├── context.rs          # Contextual skill matching
+│   │   └── ecosystem.rs        # Version tracking, half-lives
+│   ├── journal/                # Structured journal system
+│   │   ├── entries.rs          # Decision, Failure, Insight, Milestone types
+│   │   ├── parser.rs           # YAML frontmatter + markdown parsing
+│   │   └── extraction.rs       # Tag, cluster, suggest pipeline
+│   ├── tools/                  # Tool system
+│   ├── telemetry/              # Full cognitive tracing
+│   ├── replay/                 # Deterministic replay system
+│   └── config/                 # Settings, auth
+├── docs/                       # Architecture documentation
+│   ├── proto-agi.md            # Full architecture (source of truth)
+│   └── expanding_on/           # Deep-dive documents per subsystem
+├── Cargo.toml                  # Rust dependencies
+├── Cargo.lock
+└── README.md
 ```
 
 ---
 
-## Documentation
+## Project Cognition Context (`.kc/`)
 
-All architecture and design documentation lives in `docs/`:
+KC stores per-project cognition in a `.kc/` directory at the project root. This is where steering docs, specs, journal entries, and project-local memory live.
 
-| File | Contents |
-|------|----------|
-| [`docs/proto-agi.md`](docs/proto-agi.md) | Full Proto-AGI v2.0 architecture — the source of truth |
-| [`docs/database_schema/`](docs/database_schema/) | SQLite schema designs for all subsystems |
-| [`docs/database_schema/overview.md`](docs/database_schema/overview.md) | Schema design principles and database layout |
-| [`docs/database_schema/memory_palace.sql`](docs/database_schema/memory_palace.sql) | 6-tier memory system schema |
-| [`docs/database_schema/cognitive_state.sql`](docs/database_schema/cognitive_state.sql) | Predictive stack, affect, homunculus, goals, agents |
-| [`docs/database_schema/telemetry.sql`](docs/database_schema/telemetry.sql) | Full traceability (tick traces, LLM log, self-mod audit) |
-| [`docs/database_schema/world_model.sql`](docs/database_schema/world_model.sql) | Beliefs, causal chains, social model, simulations |
-| [`docs/database_schema/sync_schema.sql`](docs/database_schema/sync_schema.sql) | E2E encrypted cloud sync metadata |
-| [`docs/database_schema/global_db.sql`](docs/database_schema/global_db.sql) | Global settings, auth, skills, device profile |
-| [`docs/expanding_on/`](docs/expanding_on/) | Deep-dive expansion documents per subsystem |
+```
+any-project/
+├── .kc/
+│   ├── steering/               # Project rules — agents MUST follow
+│   │   ├── architecture.md
+│   │   ├── conventions.md
+│   │   └── constraints.md
+│   ├── specs/                  # Multi-tenant spec system
+│   │   ├── feature-name/
+│   │   │   ├── requirements.md
+│   │   │   ├── design.md
+│   │   │   └── tasks.md
+│   │   └── ...
+│   ├── journal.md              # Project episodic memory (structured)
+│   └── memory/                 # Project-local persistent context
+```
 
-### Expansion Documents (`docs/expanding_on/`)
+### User-Level Storage (`~/.kc/`)
 
-Each file goes deeper than proto-agi.md — implementation details, edge cases, research references, and open design questions:
+Cross-project skills, preferences, and memory persist at the user level:
 
-| File | Topic |
-|------|-------|
-| [`predictive-processing.md`](docs/expanding_on/predictive-processing.md) | Free Energy Principle implementation, precision weighting, layer-by-layer PP stack |
-| [`memory-palace.md`](docs/expanding_on/memory-palace.md) | Tier interactions, activation decay, consolidation algorithms, HNSW config |
-| [`homunculus-self-model.md`](docs/expanding_on/homunculus-self-model.md) | Self-prediction, generative self-model training, L0-L5 details |
-| [`affective-economy.md`](docs/expanding_on/affective-economy.md) | Temporal dynamics equations, precision weighting per modality, budget computation |
-| [`agent-society.md`](docs/expanding_on/agent-society.md) | All 12 agent specs, bid scoring, coalition formation, agent lifecycle |
-| [`goal-market.md`](docs/expanding_on/goal-market.md) | Goal generation algorithm, value function RL, temporal discounting, hierarchy |
-| [`world-simulator.md`](docs/expanding_on/world-simulator.md) | Mental sandbox forking, causal propagation, do-calculus, social model |
-| [`self-modification.md`](docs/expanding_on/self-modification.md) | Full pipeline, safety gates, constitutional kernel, shadow runtimes, git2 |
-| [`cognitive-homeostasis.md`](docs/expanding_on/cognitive-homeostasis.md) | Supervisor architecture, journal format, pathology detectors, inflammation model |
-| [`llm-pool.md`](docs/expanding_on/llm-pool.md) | Provider discovery, model scoring, cache strategy, fallback chains, cost tracking |
-| [`hardware-scaling.md`](docs/expanding_on/hardware-scaling.md) | Device profiling, dynamic bounds formulas, thermal throttling, agent shedding |
-| [`cloud-sync.md`](docs/expanding_on/cloud-sync.md) | HKDF key derivation, CRDT merge, sync queue, bandwidth estimation, device revocation |
+```
+~/.kc/
+├── skills/                     # Persistent cross-project skills
+│   ├── approved/               # Active skills (user-approved)
+│   ├── candidates/             # Pending user review
+│   ├── archived/               # Expired/archived skills
+│   └── rejected/               # Rejected (system learns what not to suggest)
+├── preferences/                # User preferences, communication style
+├── memory/                     # Cross-project semantic memory
+└── config.toml                 # Global settings, LLM providers
+```
+
+Skills are never auto-promoted. The system mines patterns from your work, proposes candidates, and waits for your approval. Weekly review surfaces 3-5 suggestions. Quarterly renewal ensures stale skills expire gracefully.
 
 ---
 
@@ -211,44 +134,73 @@ Each file goes deeper than proto-agi.md — implementation details, edge cases, 
 
 ### Prerequisites
 
-- **Rust**: `1.85.0` (Stable)
-- **Node.js**: `18.x` or higher
-- **C/C++ Compiler**: `Clang` or `MSVC` (required by NAPI-RS for linking)
+- Rust toolchain (stable, 1.75+)
+- A terminal emulator with 256-color support
 
-### Installation
-
-Install all dependencies across the workspace (Root, Frontend, and Kernel):
+### Build
 
 ```bash
-npm run install:all
+cargo build --release
 ```
 
-### Development
-
-Start the full-stack development environment:
+### Run
 
 ```bash
-npm run dev
+cargo run --release
 ```
 
-This concurrently builds the Rust binary, starts the Vite HMR server, and launches Electron.
+KC will start in Focus mode. Use `Ctrl+1/2/3` to switch visibility modes.
+
+### Configuration
+
+On first run, KC creates `~/.kc/config.toml` with defaults. Configure LLM providers there:
+
+```toml
+[llm]
+prefer_local = true
+
+[llm.providers.ollama]
+enabled = true
+host = "http://localhost:11434"
+
+[llm.providers.openai]
+enabled = false
+# api_key read from OPENAI_API_KEY env var
+```
 
 ---
 
-## Available Scripts
+## Architecture
 
-| Script | Description |
-|:---|:---|
-| `npm run dev` | Full development boot (Kernel + Vite + Electron) |
-| `npm run build` | Production build of the Kernel and Frontend |
-| `npm run build:kernel` | Compiles Rust into a production `.node` addon |
-| `npm run install:all` | Recursive npm install across all directories |
-| `npm run clean` | Purge all `node_modules` and build artifacts |
+KC implements the Free Energy Principle as a practical engineering system. The core thesis: all behavior emerges from minimizing prediction error (surprise).
+
+Key subsystems:
+- **Predictive Processing Stack** — 5-layer hierarchy generating predictions and propagating errors
+- **Memory Palace** — 6-tier reconstructive memory with competitive activation
+- **Homunculus** — Self-model that predicts the system's own behavior
+- **Affective Economy** — 6D dynamical system driving resource allocation
+- **Agent Society** — 13 specialist agents competing via bidding market
+- **Goal Market** — Goals emerge from surprise, resolved through competitive bidding
+- **World Simulator** — Causal reasoning, counterfactuals, social modeling
+- **Self-Modification Engine** — Bounded recursive evolution with constitutional safety
+
+For the full architecture, see [docs/proto-agi.md](docs/proto-agi.md).
 
 ---
 
-## Current Phase
+## Safety
 
-**Pre-Implementation** — Architecture and database schemas are complete. Next: Phase 0 implementation (continuous cognitive kernel with 10Hz tick loop, multi-provider LLM pool, basic predictive stack).
+Every operation supports **pause / cancel / rollback / replay / resume**. Approval gates fire for:
+- Destructive operations (file deletion, data modification)
+- Structural changes (architecture-level refactoring)
+- External operations (network requests, API calls)
+- Persistent changes (memory writes, skill promotion)
+- Autonomous operations (self-modification, goal pursuit without explicit user request)
 
-See [`docs/proto-agi.md` → Implementation Phases](docs/proto-agi.md#implementation-phases) for the full roadmap.
+The system cannot weaken its own safety constraints. Constitutional modules are cryptographically signed and verified by an external supervisor process.
+
+---
+
+## License
+
+Proprietary. All rights reserved.

@@ -331,3 +331,5 @@ If consolidation consistently produces high value after long idle periods but lo
 - **Self-Modification**: L4 capability. The homunculus identifies what to modify; the SelfModificationEngine handles how.
 - **Cognitive Homeostasis**: The immune system monitors the homunculus itself — if self-prediction accuracy collapses, the PredictionCalibrator intervenes.
 - **Agent Society**: The MetaAgent monitors other agents using homunculus-like self-prediction. The homunculus monitors the whole system including the MetaAgent.
+- **TUI**: In Paranoia mode, self-prediction accuracy and self-surprise levels are rendered. Introspection reports are visible when they enter working memory.
+- **Project Context**: The self-model adapts per-project — it learns different behavioral patterns for different project types (e.g., "in Rust projects I tend to run cargo check more often").

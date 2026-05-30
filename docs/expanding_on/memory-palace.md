@@ -232,7 +232,7 @@ elif device_tier == Performance:
 Rather than one monolithic database, the memory palace uses multiple SQLite files:
 
 ```
-~/.kognisant/projects/{id}/memory_palace/
+~/.kc/state/memory_palace/
 ├── episodic.db          # Ring buffer of time-indexed episodes
 ├── semantic.db          # Concept nodes, edges, embeddings
 ├── procedural.db        # Skills, rules, action-outcome pairs
@@ -349,3 +349,6 @@ This prevents the same memory from repeatedly competing and losing (wasting comp
 - **Agent Society**: The MemoryAgent manages organization, triggers consolidation requests, and handles cross-tier promotion decisions.
 - **World Simulator**: Beliefs in the world model are backed by semantic network nodes. Counterfactual reasoning queries procedural memory for "what would happen if."
 - **Cognitive Homeostasis**: The MemoryReconciler runs during homeostasis scans, pruning stale memories and resolving contradictions.
+- **TUI**: In Paranoia mode, the memory view shows current WM contents, competing candidates, and activation scores. Consolidation progress is visible during idle periods.
+- **Project Context**: `.kc/memory/` provides project-local persistent context that seeds the semantic network on project load. Cross-project memory lives in `~/.kc/memory/`.
+- **Skill Extraction**: Procedural memory patterns (repeated action-outcome pairs) feed into the SkillMiningAgent's detection pipeline.

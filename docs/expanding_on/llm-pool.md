@@ -550,3 +550,5 @@ fn discover_from_env() -> Vec<ProviderConfig> {
 - **Agent Society**: Different agents may prefer different models (CoderAgent prefers code-specialized models, ExplainAgent prefers instruction-following models). Routing hints in the request enable this.
 - **Hardware Scaling**: On Minimal tier, local models may not be available (no GPU, limited RAM). The Pool adapts by routing everything to remote providers.
 - **Telemetry**: Every LLM query is logged with provider, model, tokens, cost, latency, and success/failure.
+- **TUI**: In Trace mode, active LLM queries show provider and model. In Paranoia mode, full routing decisions, cache hits, and cost tracking are visible. Streaming tokens render progressively in the conversation pane.
+- **Skill Extraction**: The SkillMiningAgent may use LLM queries to assess skill generalizability and generate natural-language skill descriptions from observed patterns.

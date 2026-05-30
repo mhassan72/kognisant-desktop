@@ -460,3 +460,6 @@ If simulation accuracy drops below 0.5 (worse than random):
 - **Affective Economy**: Simulation outcomes affect reward expectation. Counterfactual regret increases frustration.
 - **Self-Modification**: Before self-modifying, the system simulates the modification's effects on its own behavior.
 - **Cognitive Homeostasis**: The contradiction resolver operates on the belief graph. Stale beliefs are pruned during epistemic healing.
+- **TUI**: In Paranoia mode, the belief graph and causal chains can be inspected. Simulation outcomes are shown in approval dialogs (predicted consequences of proposed actions).
+- **Project Context**: `.kc/memory/beliefs.json` persists project-specific beliefs across sessions. Steering documents create strong priors in the world model (architectural constraints become high-confidence beliefs).
+- **Skill Extraction**: The social model's learned user preferences feed into skill activation conditions (skills are matched against the user model, not just the code context).

@@ -217,7 +217,7 @@ Predictions at the same layer can influence each other:
 - **Bogacz, R. (2017)**. "A tutorial on the free-energy framework for modelling perception and learning" — Practical implementation guide
 - **Parr, T. & Friston, K. (2019)**. "Generalised free energy and active inference" — Expected free energy for action selection
 - **Millidge, B. et al. (2021)**. "Predictive Coding Approximates Backprop Along Arbitrary Computation Graphs" — PP as learning algorithm
-- **Relevant crates**: `ndarray` (tensor ops), `ort` (ONNX inference), `burn` (ML framework), `nalgebra` (linear algebra)
+- **Relevant crates**: `ndarray` (tensor ops), `ort` (ONNX inference), `burn` (ML framework), `nalgebra` (linear algebra), `ratatui` (TUI rendering of prediction state in Paranoia mode)
 
 ---
 
@@ -245,3 +245,6 @@ Predictions at the same layer can influence each other:
 - **Homunculus**: The self-model runs its own mini PP stack predicting the system's behavior. Self-surprise = the homunculus's PP stack detecting errors.
 - **Agent Society**: Agents receive surprise signals as part of their perception. High surprise in their domain triggers higher bids.
 - **Meta-Cognitive Controller**: The MCC monitors PP stack health (accuracy per layer) and decides which layers to activate based on cognitive budget.
+- **TUI**: In Paranoia mode, per-layer prediction accuracy, surprise magnitudes, and precision weights are rendered in real-time. The tick inspector shows which PP phase is currently executing.
+- **Skill Extraction**: Repeated prediction patterns at Layer 3-4 (user intent patterns) feed into the SkillMiningAgent's pattern detection.
+- **Project Context**: `.kc/steering/` documents create strong priors at Layer 3-4 (the system predicts behavior consistent with steering constraints).

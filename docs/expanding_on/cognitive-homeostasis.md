@@ -91,7 +91,7 @@ Recovery time target: < 5 seconds from crash to resumed operation
 The cognitive journal is an append-only binary file:
 
 ```
-~/.kognisant/projects/{id}/cognitive_state/journal.bin
+~/.kc/state/journal.bin
 
 Format:
 [Header: 32 bytes]
@@ -416,7 +416,7 @@ reconciliation runs every 10,000 ticks (~17 minutes):
 
 3. **Intervention aggressiveness**: How quickly should the system escalate? Too fast = unnecessary disruption. Too slow = pathology causes damage. Current plan: 1000 ticks (100s) per escalation level. Needs empirical tuning.
 
-4. **User notification**: When should the user be told about homeostasis events? Current plan: Level 3+ interventions are shown in UI. Level 1-2 are silent (logged in telemetry only).
+4. **User notification**: When should the user be told about homeostasis events? Current plan: Level 3+ interventions are shown in the TUI (Trace mode and above). Level 1-2 are silent (logged in telemetry only). In Focus mode, only Level 4+ surfaces as a status bar warning.
 
 5. **Factory reset scope**: What does "factory reset" mean for a subsystem? Reset to initial state? Reset to last known good? Current plan: per-subsystem reset to last healthy snapshot, not full factory reset (which would lose all learning).
 
@@ -461,3 +461,6 @@ reconciliation runs every 10,000 ticks (~17 minutes):
 - **Agent Society**: InfiniteBidLoopDetector monitors agents. Intervention: temporarily disable stuck agent.
 - **Telemetry**: All interventions are recorded with full context (pathology detected, intervention applied, outcome).
 - **Supervisor**: The supervisor IS the homeostasis layer's external component. It provides crash recovery and resource monitoring that the kernel cannot provide for itself.
+- **TUI**: Paranoia mode shows inflammation level and active pathology detectors. Level 3+ interventions surface in Trace mode as warnings.
+- **Project Context**: Homeostasis state is stored in `~/.kc/state/` (not per-project). Each device maintains independent homeostasis.
+- **Journal**: Significant homeostasis events (Level 3+) are automatically recorded as system journal entries for post-mortem analysis.

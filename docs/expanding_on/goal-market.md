@@ -313,7 +313,7 @@ When a goal is abandoned:
 
 4. **Collaborative goal setting**: Should the system propose goals to the user? ("I notice you haven't written tests for module X. Should I?") Current plan: yes, via SocialAgent, but only when confidence > 0.7 and user engagement is high.
 
-5. **Goal market visualization**: How to show the user what the system is "thinking about"? The GoalMarket.vue view shows active goals, bids, and resolutions in real-time. But is this overwhelming? Need UX research.
+5. **Goal market visualization**: How to show the user what the system is "thinking about"? In Trace mode, the goal panel shows active goals with priorities and agent assignments. In Paranoia mode, full bid history and resolution dynamics are visible. Focus mode shows only the current top-level goal in the status bar.
 
 6. **Multi-project goals**: Can a goal span multiple projects? (e.g., "Learn React patterns" applies everywhere.) Current plan: no — goals are project-scoped. Cross-project learning happens through skill transfer, not shared goals.
 
@@ -356,3 +356,6 @@ When a goal is abandoned:
 - **Homunculus**: Self-improvement goals originate from the homunculus's L3/L5 evaluations.
 - **Self-Modification**: Self-modification is a goal type that goes through the market like any other, but with additional safety gating.
 - **Cognitive Homeostasis**: The immune system can suppress goal generation (raise threshold) or force goal abandonment (flood response).
+- **TUI**: Goal hierarchy is rendered in Trace mode (right panel). Paranoia mode shows bid scores, temporal discounting, and abandonment criteria in real-time.
+- **Project Context**: `.kc/specs/` create explicit goals that persist across sessions. Spec-derived goals have higher initial priority (0.7-0.9) since they represent deliberate user intent.
+- **Skill Extraction**: Completed goal patterns feed into the SkillMiningAgent. Repeated successful goal → execution patterns become skill candidates.

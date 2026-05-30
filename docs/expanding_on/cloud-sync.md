@@ -536,7 +536,7 @@ if !devices.iter().any(|d| d.id == self.device_id) {
 
 5. **Storage backend flexibility**: Should users be able to bring their own S3 bucket? Current plan: yes (CustomS3 backend). But this adds complexity (different auth, different endpoints, different reliability).
 
-6. **Sync visibility**: Should the user see sync status in the UI? Current plan: minimal — a small indicator showing "synced" / "syncing" / "offline". Detailed sync log available in Settings.
+6. **Sync visibility**: Should the user see sync status in the TUI? Current plan: minimal — a small indicator in the status bar showing "synced" / "syncing" / "offline". Detailed sync log available via command palette.
 
 ---
 
@@ -574,4 +574,6 @@ if !devices.iter().any(|d| d.id == self.device_id) {
 - **Telemetry**: Synced at low priority. Enables cross-device telemetry analysis.
 - **LLM Pool**: Provider configurations sync via global settings. API tokens sync (encrypted).
 - **Hardware Scaling**: Sync frequency adapts to bandwidth (hardware-scaling provides the bandwidth estimate).
-- **Settings UI**: Sync status, device management, and backend configuration are all in Settings → Sync & Backup.
+- **TUI**: Sync status is shown in the status bar (Focus mode: icon only, Trace+: detailed status). Device management available via command palette.
+- **Project Context**: `.kc/` directories are NOT synced (they're project-local and tracked by the project's own VCS). Only `~/.kc/` user-level data syncs.
+- **Skills**: Skill library syncs via union merge — skills approved on one device are available on all devices.

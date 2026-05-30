@@ -77,8 +77,8 @@ Self-modification is controlled recursive evolution. The system identifies perfo
 
 13. HOT-RELOAD
     └── Compile final binary
-    └── Load new .node module into running process
-    └── Swap function pointers / reinitialize affected subsystems
+    └── Supervisor restarts kernel with new binary
+    └── Journal replay restores state to pre-restart point
 
 14. HEALTH MONITORING (60 seconds)
     └── Monitor tick health, prediction accuracy, error rates
@@ -110,13 +110,13 @@ IMMUTABLE_PATTERNS = [
     "telemetry::record",       // Logging/audit trail
     "auth::encrypt",           // Encryption
     "sandbox::",               // Sandboxing
-    "ipc::context_bridge",     // IPC security boundary
     "ConstitutionalKernel",    // Constitutional enforcement
     "CognitiveImmuneSystem",   // Immune system
     "MergeGovernor",           // Merge governance
     "MutationBudget",          // Mutation limits
     "CognitiveVersionControl", // Version control
     "Supervisor",              // External supervisor
+    "ApprovalGate",            // User approval system
 ]
 ```
 
@@ -417,12 +417,11 @@ fn run_benchmark(state: &SystemState, episodes: &[Episode]) -> CognitiveBenchmar
 The source mirror is a full git repository:
 
 ```
-~/.kognisant/projects/{id}/source_mirror/
+~/.kc/state/source_mirror/
 ├── .git/                    # Full git history
-├── rust-kernel/
-│   └── src/                 # Modifiable source code
+├── src/                     # Modifiable source code
 ├── Cargo.toml
-└── .kognisant-meta.json     # Metadata about modifications
+└── .kc-meta.json            # Metadata about modifications
 ```
 
 ### Commit Message Format
@@ -466,7 +465,7 @@ main              ← current live code
 
 ## Open Questions / Design Decisions
 
-1. **Hot-reload mechanism**: How to swap a running .node module? Options: (a) dlopen/dlclose the .node file, (b) restart the kernel process with new binary, (c) use a plugin architecture with versioned function tables. Current plan: (b) — restart is safest, and the supervisor handles it cleanly.
+1. **Hot-reload mechanism**: How to swap a running binary? Options: (a) restart the kernel process with new binary (supervisor handles seamlessly), (b) use a plugin architecture with versioned function tables, (c) dlopen/dlclose for specific modules. Current plan: (a) — restart is safest, and the supervisor handles it cleanly with state preservation via journal replay.
 
 2. **Patch generation quality**: LLM-generated patches may be syntactically valid but semantically wrong. The benchmark catches behavioral regressions, but subtle bugs might slip through. Should there be a formal verification step? Probably too expensive for v1.
 
@@ -516,3 +515,5 @@ main              ← current live code
 - **Telemetry**: Full audit trail of every modification attempt (success or failure), including diffs, benchmarks, and health monitoring results.
 - **Agent Society**: The MetaAgent often identifies modification opportunities. The SafetyAgent can veto modifications that touch sensitive areas.
 - **Affective Economy**: Self-modification risk tolerance is computed from affect (reward_expectation × (1 - uncertainty)). High uncertainty = no self-modification.
+- **TUI**: Self-modification proposals surface as approval dialogs with full diff view. In Paranoia mode, shadow runtime evaluation progress is visible. The command palette provides access to modification history.
+- **Project Context**: Self-modifications are tracked in `~/.kc/state/source_mirror/` with full git history. The structured journal records each modification attempt (success or failure) as a Decision entry.

@@ -543,3 +543,5 @@ This prevents jarring transitions and gives subsystems time to adapt.
 - **Self-Modification**: Disabled on Minimal tier (no compiler typically available). On other tiers, compilation budget is bounded by available CPU time.
 - **Cognitive Homeostasis**: The supervisor monitors hardware metrics. Critical thermal or memory events trigger homeostasis interventions.
 - **Telemetry**: Hardware metrics are recorded for trend analysis. Helps identify if the system is consistently under-provisioned.
+- **TUI**: On Minimal tier, TUI render budget is reduced (skip expensive widgets like DAG viewer, reduce refresh rate to 5Hz). Paranoia mode may be unavailable on Minimal tier due to rendering cost.
+- **Skill Extraction**: On Minimal tier, SkillMiningAgent still runs but with reduced pattern buffer size and longer accumulation windows.

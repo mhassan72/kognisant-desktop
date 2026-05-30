@@ -1,6 +1,6 @@
 # Agent Society — Deep Dive
 
-The Agent Society is a collection of 12 specialist cognitive agents that compete and cooperate via a bidding market. There is no central planner — task allocation emerges from the interaction of agent bids, affect-weighted scoring, and coalition formation.
+The Agent Society is a collection of 13 specialist cognitive agents that compete and cooperate via a bidding market. There is no central planner — task allocation emerges from the interaction of agent bids, affect-weighted scoring, and coalition formation.
 
 ---
 
@@ -168,6 +168,42 @@ Instead of a monolithic agent with a planning module, Kognisant implements a "so
 
 **Unique behavior**: The only agent that can trigger consolidation outside of the fatigue-driven schedule. If retrieval quality degrades, MemoryAgent bids for immediate maintenance regardless of fatigue level.
 
+### 13. SkillMiningAgent
+
+**Role**: Pattern extraction from user interactions, skill candidate generation, lifecycle management.
+
+- **Perceives**: Repeated user patterns, correction signals, explicit teaching moments, interaction history
+- **Bids on**: Skill extraction opportunities, candidate review scheduling, lifecycle maintenance
+- **Bid strength**: Proportional to pattern confidence × repetition count × generalizability score
+- **Actions**: Generates skill candidates, schedules weekly reviews, manages TTL expiration, archives stale skills
+- **Learning signal**: Skill approval rate, skill usage frequency post-approval, rejection patterns
+- **Essential on**: All tiers (skill continuity is core value)
+
+**Unique behavior**: Operates on a longer timescale than other agents. While most agents bid per-tick, SkillMiningAgent accumulates evidence across sessions before generating candidates. It maintains a "pattern buffer" that persists in `.kc/memory/` and only surfaces candidates when confidence exceeds threshold (default 0.7).
+
+**Detection signals**:
+- **Repetition**: Same approach used 3+ times across different contexts
+- **Explicit teaching**: User says "always do X when Y" or "remember that Z"
+- **Correction patterns**: User consistently modifies system output in the same way
+- **Preference signals**: User repeatedly chooses one approach over alternatives
+
+**Skill candidate generation**:
+```
+1. Pattern detected (repetition/teaching/correction)
+2. Extract: conditions, actions, expected outcomes
+3. Assess generalizability (project-specific vs cross-project)
+4. Compute confidence score
+5. If confidence > 0.7: generate candidate → ~/.kc/skills/candidates/
+6. Queue for weekly review (max 3-5 per week)
+```
+
+**Lifecycle management**:
+- Monitors skill usage frequency
+- Applies domain-specific half-lives (language syntax: 6mo, API patterns: 2wk)
+- Triggers quarterly renewal reviews for active skills
+- Archives skills that haven't been used within 2× their half-life
+- Learns from rejections (adjusts detection thresholds for similar patterns)
+
 ---
 
 ## Bid Scoring Algorithms
@@ -310,8 +346,9 @@ Priority order for shedding (first shed = lowest priority):
 9. --- NEVER SHED BELOW THIS LINE ---
 10. CoderAgent (primary value delivery)
 11. PlannerAgent (core task decomposition)
-12. SocialAgent (user relationship)
-13. SafetyAgent (non-negotiable)
+12. SkillMiningAgent (skill continuity)
+13. SocialAgent (user relationship)
+14. SafetyAgent (non-negotiable)
 ```
 
 ### Death (Permanent Removal)
@@ -382,7 +419,7 @@ On Minimal tier (4 agents only), the 8 disabled agents' responsibilities fold in
 
 ## Open Questions / Design Decisions
 
-1. **Agent count**: 12 was chosen to cover major cognitive functions without excessive overhead. Should there be more specialized agents (e.g., SecurityAgent, PerformanceAgent)? Current decision: no — keep it at 12 and let agents develop sub-specializations through learning.
+1. **Agent count**: 13 was chosen to cover major cognitive functions without excessive overhead. The addition of SkillMiningAgent (13th) was driven by the need for persistent skill extraction as a first-class cognitive function. Should there be more specialized agents (e.g., SecurityAgent, PerformanceAgent)? Current decision: no — keep it at 13 and let agents develop sub-specializations through learning.
 
 2. **Bid frequency**: Should agents bid every tick or only when they detect relevant goals? Current plan: agents perceive every tick but only generate bids when they have something to bid on (saves computation).
 
@@ -430,3 +467,6 @@ On Minimal tier (4 agents only), the 8 disabled agents' responsibilities fold in
 - **Predictive Processing**: Surprise signals are distributed to all agents as part of their perception. Each agent filters for domain-relevant surprises.
 - **Hardware Scaling**: Agent count is bounded by device tier. The MCC sheds agents when under resource pressure.
 - **Self-Modification**: Agents can propose self-modifications (via the goal market), but only the SelfModificationEngine can execute them.
+- **TUI**: In Trace mode, agent activity is rendered showing current bids, executions, and coalition state. In Paranoia mode, full bid history and confidence trajectories are visible.
+- **Skill Extraction**: The SkillMiningAgent operates on a longer timescale, accumulating evidence across sessions. It interacts with `~/.kc/skills/` for persistence and the journal for attribution.
+- **Project Context**: Agents read `.kc/steering/` documents as hard constraints. Violations of steering docs generate high-priority prediction errors that agents must address.

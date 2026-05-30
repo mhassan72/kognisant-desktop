@@ -263,7 +263,7 @@ uncertainty *= 0.8     // Consolidation resolved some unknowns
 
 1. **Affect initialization**: What should the initial affective state be on first boot? Current plan: all dimensions at 0.3 (slightly below neutral) with high curiosity (0.7) to encourage initial exploration.
 
-2. **User-visible affect**: Should the user see the raw affect vector or a simplified representation? Current plan: simplified (valence orb + arousal indicator) with detailed view available in Settings.
+2. **User-visible affect**: Should the user see the raw affect vector or a simplified representation? Current plan: simplified in Focus mode (valence orb color only), detailed bars in Trace mode, full 6D vector with coupling dynamics in Paranoia mode.
 
 3. **Affect manipulation risk**: Could a user intentionally manipulate the system's affect to get different behavior? (e.g., repeatedly failing to increase frustration and trigger fast-mode). This is acceptable — the user is the principal. But should there be a "reset affect" button?
 
@@ -313,3 +313,6 @@ uncertainty *= 0.8     // Consolidation resolved some unknowns
 - **Self-Modification**: Self-modification risk tolerance is directly computed from affect (high reward expectation + low uncertainty = willing to take risks).
 - **Cognitive Homeostasis**: The immune system monitors affect for stuck states and intervenes when dimensions are pathologically extreme.
 - **Hardware Scaling**: When thermal throttling or memory pressure occurs, fatigue is artificially increased to trigger natural resource reduction.
+- **TUI**: The valence orb in the status bar reflects overall affect. Trace mode shows dominant behavioral mode. Paranoia mode renders full 6D bars with coupling indicators.
+- **Skill Extraction**: High-affect moments during skill usage are weighted more heavily in the SkillMiningAgent's pattern detection (emotionally salient patterns are more likely to be genuine skills).
+- **Project Context**: Frustration accumulation on a specific project topic can trigger journal entry suggestions ("You've been stuck on X — want to record this as a Failure entry for future reference?").
