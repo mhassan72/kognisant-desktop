@@ -10,6 +10,101 @@ Goals in Kognisant are not user-assigned tasks (though user requests become goal
 
 ---
 
+## Cold-Start Bootstrap
+
+At system startup (or after crash recovery), there are no active goals, no prediction history, and no surprise signals. Without intervention, the system would tick indefinitely with empty phases. The bootstrap protocol solves this.
+
+### Bootstrap Goals (First 100 Ticks)
+
+During the first 100 ticks after startup, the goal market injects hardcoded bootstrap goals that are NOT subject to normal market bidding:
+
+```rust
+fn inject_bootstrap_goals(market: &mut GoalMarket, tick: u64) {
+    if tick > 100 { return; } // Bootstrap only for first 100 ticks
+
+    if tick == 1 {
+        // Goal 1: Perceive environment (assigned to perception, always runs)
+        market.inject(Goal {
+            id: Uuid::nil(), // Sentinel: bootstrap goal
+            origin: GoalOrigin::Bootstrap,
+            description: "Initialize perception — scan project files, detect context".into(),
+            priority: 1.0, // Maximum priority
+            assigned_agent: Some(AgentId::Planner),
+            bypass_bidding: true, // Not subject to market
+        });
+
+        // Goal 2: Load project context
+        market.inject(Goal {
+            id: Uuid::nil(),
+            origin: GoalOrigin::Bootstrap,
+            description: "Load .kc/ steering docs, journal, specs, memory".into(),
+            priority: 0.9,
+            assigned_agent: Some(AgentId::Planner),
+            bypass_bidding: true,
+        });
+    }
+
+    if tick == 10 {
+        // Goal 3: Greet user (if interactive mode)
+        market.inject(Goal {
+            id: Uuid::nil(),
+            origin: GoalOrigin::Bootstrap,
+            description: "Signal readiness to user".into(),
+            priority: 0.7,
+            assigned_agent: Some(AgentId::Social),
+            bypass_bidding: true,
+        });
+    }
+}
+```
+
+### Transition to Normal Operation
+
+After tick 100:
+- Bootstrap goals are removed (if not already completed)
+- The PP stack has accumulated enough observations to generate predictions
+- Surprise signals begin firing naturally (predictions vs observations)
+- Normal goal generation from surprise takes over
+- The market operates normally from this point
+
+### Agent Default Bids
+
+Even without explicit goals, agents maintain a "situational awareness" bid:
+
+```rust
+impl CognitiveAgent for PlannerAgent {
+    fn bid(&self, perception: &AgentPerception, budget: &CognitiveBudget) -> Option<GoalBid> {
+        // Normal bidding on active goals
+        if let Some(goal) = self.find_matching_goal(perception) {
+            return Some(self.bid_on_goal(goal, budget));
+        }
+
+        // Default bid: maintain awareness (very low priority, near-zero cost)
+        // This prevents agents from going completely dormant
+        Some(GoalBid {
+            agent: self.id(),
+            goal: Goal::implicit("maintain situational awareness"),
+            urgency: 0.01,
+            expected_value: 0.1,
+            expected_cost: 0.01, // Almost free
+            confidence: 1.0,
+            ..Default::default()
+        })
+    }
+}
+```
+
+This ensures agents always have something to bid on, preventing the chicken-and-egg problem where agents need goals to bid but goals need agents to exist.
+
+### Post-Crash Recovery
+
+After crash recovery, the system doesn't need the full 100-tick bootstrap because:
+- The rkyv snapshot restores active goals (they persist across crashes)
+- The journal provides project context immediately
+- Only if ALL state is lost (both snapshot and journal corrupted) does the full bootstrap run
+
+---
+
 ## Goal Generation from Surprise — Detailed Algorithm
 
 ### The Surprise-to-Goal Pipeline

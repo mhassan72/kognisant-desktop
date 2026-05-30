@@ -368,9 +368,146 @@ This prevents the same memory from repeatedly competing and losing (wasting comp
 
 3. **Semantic network fragmentation**: After heavy pruning, the graph may become disconnected (isolated subgraphs). Mitigation: periodic connectivity check; orphaned subgraphs get boosted activation to reconnect or get archived to LTM.
 
-4. **Embedding drift**: If the embedding model is updated (e.g., user upgrades from MiniLM to Nomic), all existing embeddings become incompatible. Mitigation: store model version with embeddings; trigger full re-embedding on model change (expensive but necessary).
+4. **Embedding drift**: If the embedding model is updated (e.g., user upgrades from MiniLM to Nomic), all existing embeddings become incompatible. See "Embedding Model Migration Protocol" below for the full solution.
 
 5. **Consolidation interruption**: User returns during consolidation. Mitigation: consolidation is interruptible — each step is atomic. Partial consolidation is valid; remaining work queued for next window.
+
+---
+
+## Embedding Model Migration Protocol
+
+When the user changes the embedding model (via config or hardware tier change), the system performs a background migration with dual indices. The semantic network remains functional throughout.
+
+### Trigger
+
+Migration triggers when `config.toml` embedding_model changes OR device tier reclassification selects a different model. Migration is NEVER automatic — it requires explicit user action (config change) or explicit approval if tier changes.
+
+### Dual-Index Strategy
+
+```rust
+struct EmbeddingMigration {
+    old_model: EmbeddingModel,      // e.g., MiniLM-384d
+    new_model: EmbeddingModel,      // e.g., Nomic-768d
+    old_index: HnswIndex,           // Still serving queries
+    new_index: HnswIndex,           // Being built in background
+    progress: MigrationProgress,
+    state: MigrationState,
+}
+
+enum MigrationState {
+    NotStarted,
+    InProgress { nodes_done: usize, nodes_total: usize },
+    Validating,     // New index built, running quality checks
+    Swapping,       // Atomic pointer swap
+    Complete,       // Old index archived
+    Failed { reason: String },
+}
+
+struct MigrationProgress {
+    started_at: Instant,
+    nodes_embedded: usize,
+    nodes_total: usize,
+    estimated_remaining: Duration,
+}
+```
+
+### Migration Pipeline
+
+```
+1. User changes embedding_model in config
+2. System detects config change via file watcher
+3. Approval dialog: "Embedding model change requires re-indexing N nodes. 
+   Estimated time: Xs. Proceed? [a]pprove [d]eny"
+4. If approved:
+   a. Create new empty HNSW index with new dimensions
+   b. Spawn background tokio task for re-embedding
+   c. Old index continues serving ALL queries (no degradation)
+   d. Background task processes nodes in batches of 50:
+      - Load node text content from SQLite
+      - Generate new embedding via new model
+      - Insert into new HNSW index
+      - Update SQLite row with new embedding + model version
+      - Yield between batches (don't starve the tick loop)
+   e. After all nodes processed: validation pass
+      - Sample 100 known-good queries
+      - Compare recall@10 between old and new index
+      - If new index recall < 0.8 * old index recall → FAIL
+   f. If validation passes: atomic swap
+      - Replace old_index pointer with new_index
+      - Archive old index file (keep for 7 days as rollback)
+   g. If validation fails:
+      - Discard new index
+      - Notify user: "Migration failed — quality regression detected"
+      - Revert config to old model
+5. During migration (step 4b-4d):
+   - Queries use OLD index (full quality, old dimensions)
+   - New nodes added during migration get BOTH embeddings
+   - TUI shows progress: "Re-indexing: 4,230/10,000 nodes (42%)"
+```
+
+### Batch Processing (Non-Blocking)
+
+```rust
+async fn migrate_embeddings(
+    old_model: &EmbeddingModel,
+    new_model: &EmbeddingModel,
+    db: &Database,
+    new_index: &mut HnswIndex,
+    progress_tx: watch::Sender<MigrationProgress>,
+) -> Result<(), MigrationError> {
+    let total = db.count_nodes()?;
+    let batch_size = 50;
+    let mut done = 0;
+
+    for batch in db.iter_nodes_batched(batch_size) {
+        for node in batch {
+            // Generate new embedding
+            let text = node.content_for_embedding();
+            let new_embedding = new_model.embed(&text).await?;
+
+            // Insert into new index
+            new_index.insert(node.id, &new_embedding)?;
+
+            // Update SQLite (store both old and new during migration)
+            db.update_embedding(node.id, &new_embedding, new_model.version())?;
+
+            done += 1;
+        }
+
+        // Report progress
+        progress_tx.send(MigrationProgress {
+            started_at: migration_start,
+            nodes_embedded: done,
+            nodes_total: total,
+            estimated_remaining: estimate_remaining(done, total, migration_start),
+        }).ok();
+
+        // Yield to let tick loop run (non-blocking)
+        tokio::task::yield_now().await;
+    }
+
+    Ok(())
+}
+```
+
+### Rollback
+
+If the user is unhappy with the new model (or if something goes wrong):
+
+```
+/embedding rollback
+```
+
+- Restores old index from archive
+- Reverts config to previous model
+- Discards new embeddings from SQLite (old ones preserved during migration)
+
+### Edge Cases
+
+1. **Migration interrupted (crash/quit)**: On restart, detect partial migration state. Resume from last completed batch (SQLite tracks which nodes have new embeddings).
+2. **New nodes during migration**: Nodes added during migration get embedded with BOTH models. After swap, old embeddings are pruned in next maintenance pass.
+3. **LLM unavailable during migration**: If using API embeddings, migration pauses. Resumes when provider recovers. Progress is preserved.
+4. **Disk space**: New index + old index coexist temporarily. Requires ~2x index space during migration. Check available space before starting.
 
 6. **Memory corruption**: SQLite WAL corruption (power loss during write). Mitigation: WAL mode with synchronous=NORMAL provides crash safety. Worst case: rebuild from last journal snapshot.
 

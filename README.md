@@ -1,4 +1,13 @@
 # Kognisant Desktop (KC)
+██╗  ██╗
+██║ ██╔╝
+█████╔╝
+██╔██╗
+██║ ╚██╗
+╚═╝  ╚═╝
+
+K O G N I S A N T
+Cognitive Runtime
 
 A continuous, self-modifying, predictive processing engine that runs in your terminal. KC treats cognition as an emergent property of interacting subsystems — not a sequential pipeline. All data stays on-device, encrypted at rest, with optional E2E encrypted cloud sync.
 
