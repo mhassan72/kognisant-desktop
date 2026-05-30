@@ -123,7 +123,14 @@ Cross-project skills, preferences, and memory persist at the user level:
 │   └── rejected/               # Rejected (system learns what not to suggest)
 ├── preferences/                # User preferences, communication style
 ├── memory/                     # Cross-project semantic memory
-└── config.toml                 # Global settings, LLM providers
+├── projects/                   # Per-project runtime data
+│   └── {project-id}/
+│       ├── telemetry.db        # SQLite event log (per-project)
+│       └── state.log           # Binary state checkpoint log (crash recovery)
+├── state/                      # Global runtime state
+│   └── memory_palace/          # SQLite databases for memory tiers
+├── config.toml                 # Global settings, LLM providers
+└── projects.toml               # Registry of all known projects
 ```
 
 Skills are never auto-promoted. The system mines patterns from your work, proposes candidates, and waits for your approval. Weekly review surfaces 3-5 suggestions. Quarterly renewal ensures stale skills expire gracefully.
