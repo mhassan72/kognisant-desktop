@@ -285,6 +285,42 @@ Where `overlap(i, j)` is the cosine similarity between memory embeddings. Simila
 | Unrelated concepts | 0.0 | No competition |
 | Contradictory beliefs | 1.0 | Maximum competition, forces resolution |
 
+### Optimized Inhibition (Avoiding O(n²))
+
+The naive inhibition algorithm is O(n²) over all candidates. With 50+ candidates, this exceeds tick budget. The optimized version reduces to O(K²/num_clusters) ≈ O(80) comparisons:
+
+```rust
+/// Optimized inhibition: only compute between top-K candidates
+/// and only within the same semantic cluster
+fn compute_inhibition_optimized(candidates: &mut [MemoryChunk], k: usize) {
+    // 1. Sort by raw activation (pre-inhibition)
+    candidates.sort_by(|a, b| b.activation.partial_cmp(&a.activation).unwrap());
+
+    // 2. Only consider top-K for inhibition (rest are already losers)
+    let top_k = &mut candidates[..k.min(candidates.len())];
+
+    // 3. Cluster top-K by embedding similarity (cheap: K is small, ~20)
+    let clusters = cluster_by_similarity(top_k, 0.7);
+
+    // 4. Only compute inhibition WITHIN clusters (similar memories compete)
+    for cluster in &clusters {
+        for i in 0..cluster.len() {
+            let mut inhibition = 0.0;
+            for j in 0..cluster.len() {
+                if i == j { continue; }
+                inhibition += cluster[j].activation * cluster[i].overlap_with(&cluster[j]);
+            }
+            cluster[i].effective_activation -= inhibition;
+        }
+    }
+
+    // 5. Re-sort by effective activation
+    candidates.sort_by(|a, b| b.effective_activation.partial_cmp(&a.effective_activation).unwrap());
+}
+```
+
+With K=20 and average cluster size 4, this reduces from O(n²) to O(K²/num_clusters) ≈ O(80) comparisons instead of O(2500) for 50 candidates.
+
 ### Refractory Period
 
 After a memory loses competition, it enters a refractory period where its activation is suppressed:

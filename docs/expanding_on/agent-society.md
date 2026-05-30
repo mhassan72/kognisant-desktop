@@ -177,7 +177,7 @@ Instead of a monolithic agent with a planning module, Kognisant implements a "so
 - **Bid strength**: Proportional to pattern confidence × repetition count × generalizability score
 - **Actions**: Generates skill candidates, schedules weekly reviews, manages TTL expiration, archives stale skills
 - **Learning signal**: Skill approval rate, skill usage frequency post-approval, rejection patterns
-- **Essential on**: All tiers (skill continuity is core value)
+- **Essential on**: Standard+ tiers (sheddable under resource pressure; pattern buffer persists across shed/restore cycles)
 
 **Unique behavior**: Operates on a longer timescale than other agents. While most agents bid per-tick, SkillMiningAgent accumulates evidence across sessions before generating candidates. It maintains a "pattern buffer" that persists in `.kc/memory/` and only surfaces candidates when confidence exceeds threshold (default 0.7).
 
@@ -340,13 +340,13 @@ Priority order for shedding (first shed = lowest priority):
 3. ExplainAgent (user can ask if needed)
 4. MemoryAgent (automatic maintenance continues)
 5. MetaAgent (optimization is luxury)
-6. TestAgent (user can test manually)
-7. ResearchAgent (user can provide info)
-8. DebuggerAgent (Planner absorbs basic debugging)
-9. --- NEVER SHED BELOW THIS LINE ---
-10. CoderAgent (primary value delivery)
-11. PlannerAgent (core task decomposition)
-12. SkillMiningAgent (skill continuity)
+6. SkillMiningAgent (pattern extraction can wait)
+7. TestAgent (user can test manually)
+8. ResearchAgent (user can provide info)
+9. DebuggerAgent (Planner absorbs basic debugging)
+10. --- NEVER SHED BELOW THIS LINE ---
+11. CoderAgent (primary value delivery)
+12. PlannerAgent (core task decomposition)
 13. SocialAgent (user relationship)
 14. SafetyAgent (non-negotiable)
 ```

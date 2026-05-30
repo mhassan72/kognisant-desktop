@@ -110,6 +110,43 @@ With `α` typically 0.01 (slow adaptation) for stable layers and 0.1 (fast adapt
 - **Typical surprise**: Project pivot, fundamental requirement change, user skill level reassessment
 - **Embedding dimension**: 256
 
+### Concrete Prediction Formats
+
+Each layer produces predictions in a specific format, enabling precise error computation:
+
+**Layer 0 (Raw)**: Predicts which sensory channels will fire next tick.
+- Output: `Vec<(SensoryChannel, f64)>` — probability per channel
+- Observation: which channels actually fired (binary vector)
+- Error: channels that fired unexpectedly (false negatives) or didn't fire when expected (false positives)
+- Metric: binary cross-entropy
+
+**Layer 1 (Syntactic)**: Predicts structural patterns in active streams.
+- For user input: next token probabilities (simple bigram/trigram model)
+- For file events: expected file paths based on recent activity
+- Output: `Vec<f32>` embedding of predicted pattern (128d)
+- Observation: embedding of actual pattern (128d)
+- Error: cosine distance between predicted and observed embeddings
+- Metric: `1.0 - cosine_similarity(predicted, observed)`
+
+**Layer 2 (Semantic)**: Predicts meaning/intent of incoming data.
+- Uses embedding model (MiniLM 384d or Nomic 768d depending on tier)
+- Output: 384d embedding of predicted semantic content
+- Observation: 384d embedding of actual content
+- Error: cosine distance in embedding space
+- Metric: `1.0 - cosine_similarity(predicted, observed)` in 384d space
+
+**Layer 3 (Pragmatic)**: Predicts user goal/intent.
+- Output: probability distribution over active goals + "new goal" category
+- Observation: which goal the user's action actually serves (determined post-hoc)
+- Error: cross-entropy between predicted distribution and one-hot observed
+- Metric: `H(observed, predicted) = -Σ observed_i * log(predicted_i)`
+
+**Layer 4 (Strategic)**: Predicts project trajectory.
+- Output: predicted next milestone/phase + confidence
+- Observation: actual progress (milestone reached, phase transition, or no change)
+- Error: deviation from predicted timeline
+- Metric: `|predicted_milestone_tick - actual_milestone_tick| / horizon`
+
 ---
 
 ## Prediction Generation Algorithms

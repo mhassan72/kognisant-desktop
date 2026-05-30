@@ -36,7 +36,7 @@ kognisant-supervisor (PID 1 of the application)
 | Responsibility | Mechanism | Frequency |
 |---------------|-----------|-----------|
 | Heartbeat monitoring | Expect ping every tick (100ms) | Continuous |
-| Crash recovery | SIGCHLD → journal replay → restart | On crash |
+| Crash recovery | SIGCHLD → state log replay → restart | On crash |
 | Resource monitoring | /proc/PID/status or equivalent | Every 500ms |
 | Zombie reaping | Check child process table | Every 5s |
 | Constitutional verification | BLAKE3 hash + Ed25519 signature check | Every 60s |
@@ -72,10 +72,10 @@ enum SupervisorCommand {
 ```
 1. Supervisor detects kernel death (heartbeat timeout or SIGCHLD)
 2. Log crash event with last known tick number
-3. Find last healthy journal checkpoint
+3. Find last healthy state checkpoint
 4. Spawn new kernel process
 5. Kernel loads checkpoint state
-6. Replay valid journal deltas since checkpoint
+6. Replay valid state log deltas since checkpoint
 7. Resume tick loop from recovered state
 8. Record recovery event in telemetry
 
@@ -86,12 +86,12 @@ Recovery time target: < 5 seconds from crash to resumed operation
 
 ## Journal Format Specification
 
-### Journal File Structure
+### State Checkpoint Log File Structure
 
-The cognitive journal is an append-only binary file:
+The state checkpoint log is an append-only binary file used for crash recovery (NOT the same as `.kc/journal.md` which is the human-readable project journal):
 
 ```
-~/.kc/state/journal.bin
+~/.kc/projects/{id}/state.log
 
 Format:
 [Header: 32 bytes]
@@ -115,7 +115,7 @@ Format:
 ### Entry Types
 
 ```
-enum JournalEntryType {
+enum StateLogEntryType {
     Snapshot = 0x01,        // Full state serialization (rkyv binary)
     Delta = 0x02,           // Incremental state change
     Verification = 0x03,    // Integrity check result
@@ -133,7 +133,7 @@ enum JournalEntryType {
 Full snapshots use `rkyv` (zero-copy deserialization) for speed:
 
 ```
-struct JournalSnapshot {
+struct StateLogSnapshot {
     tick: u64,
     state_hash: [u8; 32],           // BLAKE3 of serialized state
     compressed_state: Vec<u8>,       // zstd-compressed rkyv bytes
@@ -148,7 +148,7 @@ Snapshot frequency: every 1000 ticks (~100s at 10Hz). Size: typically 1-5 MB com
 Deltas record what changed between ticks:
 
 ```
-struct JournalDelta {
+struct StateLogDelta {
     tick: u64,
     subsystem: String,              // "memory", "affect", "goals", etc.
     mutation_type: MutationType,    // Add, Remove, Update, Clear
@@ -160,9 +160,9 @@ struct JournalDelta {
 
 Delta frequency: every 100 ticks. Only records subsystems that actually changed.
 
-### Journal Compaction
+### State Log Compaction
 
-The journal grows indefinitely. Compaction runs during consolidation:
+The state log grows indefinitely. Compaction runs during consolidation:
 
 ```
 1. Find oldest snapshot that is still needed (last 3 snapshots kept)
@@ -439,7 +439,7 @@ reconciliation runs every 10,000 ticks (~17 minutes):
 
 1. **Supervisor crash**: If the supervisor itself crashes, the kernel continues running unsupervised. Mitigation: the kernel has a "supervisor heartbeat" check — if it doesn't hear from the supervisor for 30s, it enters safe mode (reduced operation, no self-modification).
 
-2. **Journal corruption**: Power loss during journal write. Mitigation: each entry has a CRC32 checksum. Corrupted entries are skipped during recovery. Worst case: lose deltas since last snapshot.
+2. **State log corruption**: Power loss during state log write. Mitigation: each entry has a CRC32 checksum. Corrupted entries are skipped during recovery. Worst case: lose deltas since last snapshot.
 
 3. **False positive pathology**: The immune system detects a "pathology" that is actually normal behavior in a new context. Mitigation: pathology thresholds adapt over time (if a "pathology" keeps being detected and the system is otherwise healthy, raise the threshold).
 

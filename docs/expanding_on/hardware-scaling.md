@@ -390,10 +390,11 @@ fn shedding_priority(agent: &Agent) -> u32 {
         "DebuggerAgent" => 500,
         "ResearchAgent" => 400,
         "TestAgent" => 350,
-        "MemoryAgent" => 300,
+        "SkillMiningAgent" => 275,
         "MetaAgent" => 250,
-        "ExplainAgent" => 200,
-        "RefactorAgent" => 150,
+        "MemoryAgent" => 200,
+        "ExplainAgent" => 150,
+        "RefactorAgent" => 125,
         "CuriosityAgent" => 100,  // First to shed
         _ => 50,
     };

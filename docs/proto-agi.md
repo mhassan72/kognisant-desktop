@@ -735,11 +735,9 @@ The LLM Pool discovers available providers, scores models against query requirem
 
 ### Routing Logic
 
-```
-score = capability_match × (quality×0.25 + speed×0.20 + cost×0.20 + locality×0.15 + reliability×0.10 + preference×0.10)
-```
+The LLM Pool scores models using a weighted combination of capability match, quality, speed, cost, locality preference, reliability, and user preference. Local models are preferred for simple queries. Remote frontier models are used for complex reasoning, code generation, and self-modification patches.
 
-Local models are preferred for simple queries. Remote frontier models are used for complex reasoning, code generation, and self-modification patches.
+> For exact routing weights and algorithm, see `docs/architecture-decisions.md` Section 6.
 
 See [expanding_on/llm-pool.md](expanding_on/llm-pool.md) for full routing algorithm.
 
@@ -1121,6 +1119,13 @@ kognisant-desktop/
 ---
 
 ## Implementation Phases
+
+> **Complexity Deferral Notes**: The following capabilities are explicitly DEFERRED to avoid premature complexity:
+> - **World Simulator counterfactuals and do-calculus** → DEFERRED to Phase 6+. Phase 2 uses simple belief graph with forward propagation only.
+> - **Dream Engine counterfactual generation** → DEFERRED. Phase 1 consolidation is: deduplicate + prune + compress. Pattern extraction added in Phase 3.
+> - **Homunculus L3-L5** → DEFERRED to Phase 5+. Self-modification triggers use simple metric thresholds until then.
+> - **Cloud sync CRDT merge** → DEFERRED. Phase 5 uses encrypted backup + restore + last-write-wins.
+> - **Full 13-agent society** → DEFERRED. Phase 0-1 uses 3 agents (Planner, Coder, Safety). Agents added incrementally.
 
 ### Phase 1: Foundation (Current)
 

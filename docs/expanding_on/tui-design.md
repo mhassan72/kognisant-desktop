@@ -110,8 +110,20 @@ The daily driver. Minimal cognitive noise, maximum productivity.
 **Layout regions:**
 - **Title bar**: App name, mode indicator, current goal summary, valence orb, clock
 - **Conversation pane**: Scrollable message history (user + system)
+- **Activity summary bar**: One-line awareness indicator between conversation and input
 - **Approval overlay**: Appears when action needs approval (modal)
 - **Status bar**: Workspace observer (file changes, build, git)
+
+The activity summary bar provides awareness without cognitive overload:
+
+```
+├──────────────────────────────────────────────────────────────┤
+│ ● Working: implement auth │ Goals: 3 │ Pending: 1 approval  │
+├──────────────────────────────────────────────────────────────┤
+│ >                                                            │
+```
+
+The dot pulses (alternates between `●` and `○` at 1Hz) when the system is actively executing. Static `●` when idle. This gives the user a glanceable sense of system activity without requiring mode switching.
 
 ### Trace Mode
 
@@ -280,7 +292,8 @@ loop {
    - Approve → action executes, dialog dismissed
    - Reject → action cancelled, goal notified
    - Defer → action queued, dialog dismissed, re-surfaces later
-5. If no response in 60s → auto-defer (never auto-approve)
+5. If no response in 300s → auto-deny (never auto-approve)
+   Exception: Autonomous category waits indefinitely.
 ```
 
 ### Approval Context
