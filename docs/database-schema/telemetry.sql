@@ -208,7 +208,7 @@ INSERT INTO retention_meta (key, value) VALUES
 --     "purpose": "string", "cache_hit": false }
 
 -- GoalCreated:
---   { "goal_id": "uuid", "source": "UserRequest|PredictionError|CuriosityGap|ValueGradient|Contradiction|Opportunity|SelfImprovement|SocialMaintenance",
+--   { "goal_id": "uuid", "source": "UserRequest|PredictionError|CuriosityGap|ValueGradient|Contradiction|Opportunity|SelfImprovement|SocialMaintenance|Bootstrap|Decomposition",
 --     "priority": 0.8, "description": "string", "parent_goal_id": "uuid?" }
 
 -- GoalCompleted:

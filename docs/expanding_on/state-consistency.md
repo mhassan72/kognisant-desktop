@@ -28,7 +28,7 @@ Every piece of state has exactly one owner, one format, and one durability guara
 | Procedural memory | SQLite (procedural.db) | Rows | WAL crash-safe | NO |
 | LTM | SQLite (ltm.db) | Rows + BLOBs | WAL crash-safe | NO |
 | HNSW index | In-memory (rebuilt from SQLite) | hnsw_rs struct | Rebuilt on load | NO |
-| World model beliefs | SQLite (world.db) | Rows | WAL crash-safe | NO |
+| World model beliefs | SQLite (world_model.db) | Rows | WAL crash-safe | NO |
 | Project journal | Markdown file (.kc/journal.md) | Text | Filesystem | NO |
 | Skills | TOML files (~/.kc/skills/) | Text | Filesystem | NO |
 | Config | TOML files | Text | Filesystem | NO |

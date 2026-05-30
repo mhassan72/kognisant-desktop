@@ -384,8 +384,8 @@ fn shedding_priority(agent: &Agent) -> u32 {
     // Higher = more important = shed last
     let base = match agent.name() {
         "SafetyAgent" => 1000,    // NEVER shed
-        "PlannerAgent" => 900,
-        "SocialAgent" => 800,
+        "SocialAgent" => 900,
+        "PlannerAgent" => 800,
         "CoderAgent" => 700,
         "DebuggerAgent" => 500,
         "ResearchAgent" => 400,

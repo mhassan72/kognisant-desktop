@@ -236,9 +236,10 @@ Rather than one monolithic database, the memory palace uses multiple SQLite file
 ├── episodic.db          # Ring buffer of time-indexed episodes
 ├── semantic.db          # Concept nodes, edges, embeddings
 ├── procedural.db        # Skills, rules, action-outcome pairs
-├── ltm.db               # Compressed long-term memories
-└── meta.db              # Cross-tier metadata, activation scores, indices
+└── ltm.db               # Compressed long-term memories
 ```
+
+Note: Cross-tier metadata (activation scores, indices) is embedded within each tier's database in dedicated tables (e.g., `activation_scores` in episodic.db, `node_activations` in semantic.db). No separate `meta.db` is needed.
 
 **Rationale**: Different tiers have different access patterns:
 - Episodic: append-heavy, sequential reads, periodic bulk deletes
